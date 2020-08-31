@@ -1,7 +1,7 @@
 /*************************************
 * Lab 1 Exercise 1
-* Name:
-* Student No:
+* Name: Wong Choon Wei
+* Student No: A0202190X
 * Lab Group:
 *************************************/
 
@@ -18,6 +18,11 @@
 // starting at 0)
 void insert_node_from_head_at(list *lst, int index, int data)
 {
+  if (index == 1) {
+    lst.head = 
+  } else {
+    insert_node_from_head_at(%lst.tail, index - 1, data)
+  }
 }
 
 // inserts a new node with data value at index (counting from the back
