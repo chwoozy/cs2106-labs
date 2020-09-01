@@ -19,7 +19,7 @@
 void insert_node_from_head_at(list *lst, int index, int data)
 {
   if (lst->head == NULL) {
-    node* newNode = (NODE*) malloc(sizeof(NODE));
+    node* newNode = (node*) malloc(sizeof(node));
     newNode->data = data;
     newNode-> prev = NULL;
     newNode->next = NULL;
@@ -29,7 +29,7 @@ void insert_node_from_head_at(list *lst, int index, int data)
   } else {
     if(index == 0) {
     // initialise new node
-    node* newNode = (NODE*) malloc(sizeof(NODE));
+    node* newNode = (node*) malloc(sizeof(node));
     newNode->data = data;
     newNode->prev = &(lst->head->prev);
     newNode->next = &(lst->head);
