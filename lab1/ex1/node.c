@@ -18,6 +18,8 @@
 // starting at 0)
 void insert_node_from_head_at(list *lst, int index, int data)
 {
+  list *originalList = (list *)malloc(sizeof(list));
+  originalList = lst;
   if (lst->head == NULL) {
     node* newNode = (node*) malloc(sizeof(node));
     newNode->data = data;
@@ -46,12 +48,15 @@ void insert_node_from_head_at(list *lst, int index, int data)
       insert_node_from_head_at(newList, index - 1, data);
     }
   }
+  lst = originalList;
 }
 
 // inserts a new node with data value at index (counting from the back
 // starting at 0)
 void insert_node_from_tail_at(list *lst, int index, int data)
 {
+  list *originalList = (list *)malloc(sizeof(list));
+  originalList = lst;
   if (lst->head == NULL) {
     node* newNode = (node*) malloc(sizeof(node));
     newNode->data = data;
@@ -80,6 +85,7 @@ void insert_node_from_tail_at(list *lst, int index, int data)
       insert_node_from_head_at(newList, index - 1, data);
     }
   }
+  lst = originalList;
 
 }
 
