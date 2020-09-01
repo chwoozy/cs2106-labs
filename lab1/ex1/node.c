@@ -41,7 +41,7 @@ void insert_node_from_head_at(list *lst, int index, int data)
     lst->head->prev = newNode; 
 
     } else {
-      list newList = malloc(sizeof(list));
+      list newList;
       newList->head = lst->head->next;
       insert_node_from_head_at(newList, index - 1, data);
     }
