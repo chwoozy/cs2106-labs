@@ -23,22 +23,22 @@ void insert_node_from_head_at(list *lst, int index, int data)
     newNode->data = data;
     newNode-> prev = NULL;
     newNode->next = NULL;
-    lst->head = &newNode
-    lst->tail = &(lst->head)
+    lst->head = newNode;
+    lst->tail = (lst->head);
 
   } else {
     if(index == 0) {
     // initialise new node
     node* newNode = (node*) malloc(sizeof(node));
     newNode->data = data;
-    newNode->prev = &(lst->head->prev);
-    newNode->next = &(lst->head);
+    newNode->prev = (lst->head->prev);
+    newNode->next = &lst->head);
 
     // change prev node
-    lst->head->prev->next = &(newNode);
+    lst->head->prev->next = (newNode);
     
     //change index node
-    lst->head->prev = &newNode; 
+    lst->head->prev = newNode; 
 
     } else {
       list newList = (list*) malloc(sizeof(list));
