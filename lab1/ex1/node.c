@@ -127,7 +127,7 @@ void delete_node_from_tail_at(list *lst, int index)
       node* newNode = (node*) malloc(sizeof(node));
       newNode = lst->tail;
       // set correct previous head
-      lst->tail->next->prev = lst->head->prev
+      lst->tail->next->prev = lst->head->prev;
       
       free(newNode);
     } else {
