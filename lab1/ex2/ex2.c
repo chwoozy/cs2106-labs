@@ -22,7 +22,6 @@
 #define RESET_LIST 5
 #define MAP 6
 
-void run_instruction(list *lst, int instr);
 
 int main(int argc, char **argv)
 {
@@ -34,7 +33,6 @@ int main(int argc, char **argv)
 
     // we read in the file name provided as argument
     char *fname = argv[1];
-    // char readline[256];
 
     // updating the array of function pointers
     // do not remove this call 
@@ -54,11 +52,10 @@ int main(int argc, char **argv)
         int instr;
         while(fscanf(file, "%d", &instr) == 1) {
             int index, data;
-            printf("%d", instr);
             switch (instr)
             {
             case SUM_LIST:
-                sum_list(lst);
+                printf("%ld\n", sum_list(lst));
                 break;
             case INSERT_FROM_HEAD_AT:
                 fscanf(file, "%d %d", &index, &data);
