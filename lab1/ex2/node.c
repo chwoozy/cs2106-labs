@@ -74,6 +74,7 @@ void insert_node_from_head_at(list *lst, int index, int data)
     lst->tail = newNode;
   }
 
+  newNode = NULL;
 }
 
 // inserts a new node with data value at index (counting from the back
@@ -119,6 +120,8 @@ void insert_node_from_tail_at(list *lst, int index, int data)
   if (index != 0 && prevNode == NULL) {
     lst->head = newNode;
   }
+
+  newNode = NULL;
 
 }
 
@@ -230,16 +233,12 @@ void delete_node_from_tail_at(list *lst, int index)
 // the process  
 void reset_list(list *lst)
 {
-  node *currHead = lst->head;
-  node *currTail = lst->tail;
-  while (currHead != NULL && currTail != NULL)
+  node *curr = lst->head;
+  while (curr != NULL)
     {
-        node *releaseHeadNode = currHead;
-        node *releaseTailNode = currTail;
-        currHead = currHead->next;
-        currTail = currTail->prev;
-        free(releaseHeadNode);
-        free(releaseTailNode);
+        node *releaseNode = curr;
+        curr = curr->next;
+        free(releaseNode);
     }
   
   lst->head = NULL;
