@@ -230,12 +230,16 @@ void delete_node_from_tail_at(list *lst, int index)
 // the process  
 void reset_list(list *lst)
 {
-  node *curr = lst->head;
-  while (curr != NULL)
+  node *currHead = lst->head;
+  node *currTail = lst->tail;
+  while (currHead != NULL && currTail != NULL)
     {
-        node *releaseNode = curr;
-        curr = curr->next;
-        free(releaseNode);
+        node *releaseHeadNode = currHead;
+        node *releaseTailNode = currTail;
+        currHead = currHead->next;
+        currTail = currTail->prev;
+        free(releaseHeadNode);
+        free(releaseTailNode);
     }
   
   lst->head = NULL;
