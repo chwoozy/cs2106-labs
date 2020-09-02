@@ -34,9 +34,8 @@ node* search_node(list *lst, int index, bool front) {
 // starting at 0)
 void insert_node_from_head_at(list *lst, int index, int data)
 {
-  node* nextNode = (node*) malloc(sizeof(node));
-  node* prevNode = (node*) malloc(sizeof(node));
-
+  node* nextNode;
+  node* prevNode;
   node* newNode = (node*) malloc(sizeof(node));
 
   if (index != 0) {
@@ -75,12 +74,9 @@ void insert_node_from_head_at(list *lst, int index, int data)
     lst->tail = newNode;
   }
 
-  nextNode = NULL;
-  prevNode = NULL;
-  newNode = NULL;
-  free(nextNode);
-  free(prevNode);
-  free(newNode);
+//   free(nextNode);
+//   free(prevNode);
+//   free(newNode);
 
 }
 
@@ -88,8 +84,8 @@ void insert_node_from_head_at(list *lst, int index, int data)
 // starting at 0)
 void insert_node_from_tail_at(list *lst, int index, int data)
 {
-  node* nextNode = (node*) malloc(sizeof(node));
-  node* prevNode = (node*) malloc(sizeof(node));
+  node* nextNode;
+  node* prevNode;
   node* newNode = (node*) malloc(sizeof(node));
 
   if (index != 0) {
@@ -134,9 +130,9 @@ void insert_node_from_tail_at(list *lst, int index, int data)
 // note: index is guaranteed to be valid
 void delete_node_from_head_at(list *lst, int index)
 {
-  node* nextNode = (node*) malloc(sizeof(node));
-  node* prevNode = (node*) malloc(sizeof(node));
-  node* deleteNode = (node*) malloc(sizeof(node));
+  node* nextNode;
+  node* prevNode;
+  node* deleteNode;
 
   deleteNode = search_node(lst, index, true);
 
@@ -187,9 +183,9 @@ void delete_node_from_head_at(list *lst, int index)
 // note: index is guaranteed to be valid
 void delete_node_from_tail_at(list *lst, int index)
 {
-  node* nextNode = (node*) malloc(sizeof(node));
-  node* prevNode = (node*) malloc(sizeof(node));
-  node* deleteNode = (node*) malloc(sizeof(node));
+  node* nextNode;
+  node* prevNode;
+  node* deleteNode;
 
   deleteNode = search_node(lst, index, false);
 
