@@ -165,7 +165,7 @@ void delete_node_from_head_at(list *lst, int index)
     }
   }
 
-  if(prevNode == NULL & nextNode == NULL) {
+  if(prevNode == NULL && nextNode == NULL) {
       lst->head = NULL;
       lst->tail = NULL;
   }
@@ -218,7 +218,7 @@ void delete_node_from_tail_at(list *lst, int index)
     }
   }
 
-  if(prevNode == NULL & nextNode == NULL) {
+  if(prevNode == NULL && nextNode == NULL) {
       lst->head = NULL;
       lst->tail = NULL;
   }
