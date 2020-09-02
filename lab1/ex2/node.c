@@ -17,7 +17,7 @@
 
 node* search_node(list *lst, int index, bool front) {
   // initialise search node
-  node* searchedNode = (node*) malloc(sizeof(node));
+  node* searchedNode;
   searchedNode = front ? lst->head : lst->tail;
 
   for(int i = 0; i < index; i++) {
