@@ -74,10 +74,6 @@ void insert_node_from_head_at(list *lst, int index, int data)
     lst->tail = newNode;
   }
 
-//   free(nextNode);
-//   free(prevNode);
-//   free(newNode);
-
 }
 
 // inserts a new node with data value at index (counting from the back

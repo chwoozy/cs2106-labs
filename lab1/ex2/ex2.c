@@ -92,6 +92,7 @@ int main(int argc, char **argv)
     }
 
     fclose(file);
+    free(lst);
     return 0;
 }
 
