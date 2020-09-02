@@ -165,6 +165,11 @@ void delete_node_from_head_at(list *lst, int index)
     }
   }
 
+  if(prevNode == NULL & nextNode == NULL) {
+      lst->head = NULL;
+      lst->tail = NULL;
+  }
+
   // free deleteNode
   free(deleteNode);
 
@@ -211,6 +216,11 @@ void delete_node_from_tail_at(list *lst, int index)
     if (deleteNode == NULL || prevNode == NULL) {
       lst->head = nextNode;
     }
+  }
+
+  if(prevNode == NULL & nextNode == NULL) {
+      lst->head = NULL;
+      lst->tail = NULL;
   }
 
   // free deleteNode

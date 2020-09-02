@@ -21,7 +21,9 @@
 #define DELETE_FROM_TAIL_AT 4
 #define RESET_LIST 5
 #define MAP 6
+#define PRINT_LIST 7
 
+void print_list(list *lst);
 
 int main(int argc, char **argv)
 {
@@ -79,6 +81,9 @@ int main(int argc, char **argv)
             case MAP:
                 fscanf(file, "%d", &instr);
                 map(lst, func_list[instr]);
+                break;
+            case PRINT_LIST:
+                print_list(lst);
             }
         }
     } else {
@@ -88,4 +93,24 @@ int main(int argc, char **argv)
 
     fclose(file);
     return 0;
+}
+
+void print_list(list *lst)
+{
+    printf("Forward: [ ");
+    node *curr = lst->head;
+    while (curr != NULL)
+    {
+        printf("%d ", curr->data);
+        curr = curr->next;
+    }
+
+    printf("], Backwards: [ ");
+    curr = lst->tail;
+    while (curr != NULL)
+    {
+        printf("%d ", curr->data);
+        curr = curr->prev;
+    }
+    printf("]\n");
 }
