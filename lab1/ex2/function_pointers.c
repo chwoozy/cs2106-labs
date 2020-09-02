@@ -10,7 +10,7 @@
 // write the necessary code to initialize the func_list
 // array here, if needed
 
-extern int (*func_list[5])(int);
+int (*func_list[5])(int);
 
 void update_functions() 
 {

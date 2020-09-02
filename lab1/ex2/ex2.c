@@ -51,11 +51,10 @@ int main(int argc, char **argv)
     file = fopen(fname, "r");
 
     if (file) {
-        // while(fgets(readline, sizeof(readline), file)) {
-        // }
         int instr;
         while(fscanf(file, "%d", &instr) == 1) {
             int index, data;
+            printf("%d", instr);
             switch (instr)
             {
             case SUM_LIST:
