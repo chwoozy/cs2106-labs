@@ -2,9 +2,9 @@
 
 ####################
 # Lab 1 Exercise 4
-# Name:
-# Student No:
-# Lab Group: 
+# Name: Wong Choon Wei
+# Student No: A0202190X
+# Lab Group: 11
 ####################
 
 # fill the below up

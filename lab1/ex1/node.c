@@ -74,7 +74,7 @@ void insert_node_from_head_at(list *lst, int index, int data)
     lst->tail = newNode;
   }
 
-  newNode = NULL;
+  // newNode = NULL;
 }
 
 // inserts a new node with data value at index (counting from the back
@@ -121,7 +121,7 @@ void insert_node_from_tail_at(list *lst, int index, int data)
     lst->head = newNode;
   }
 
-  newNode = NULL;
+  // newNode = NULL;
 
 }
 
