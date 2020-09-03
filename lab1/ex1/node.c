@@ -228,3 +228,19 @@ void delete_node_from_tail_at(list *lst, int index)
   // free deleteNode
   free(deleteNode);
 }
+
+// resets list to an empty state (no nodes) and frees any allocated memory in
+// the process  
+void reset_list(list *lst)
+{
+  node *curr = lst->head;
+  while (curr != NULL)
+    {
+        node *releaseNode = curr;
+        curr = curr->next;
+        free(releaseNode);
+    }
+  
+  lst->head = NULL;
+  lst->tail = NULL;
+}
