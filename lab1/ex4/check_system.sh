@@ -12,11 +12,8 @@ hostname=$(uname -n)
 kernel_version=$(uname -r)
 process_cnt=$(ps axu | wc -l)
 user_process_cnt=$(ps -u | wc -l)
-mem_total=`free -m  | grep ^Mem | awk '{print $2}'`
-# mem_usage=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
-mem_available=`free -m  | grep ^Mem | awk '{print $7}'`
-mem_usage=`sum=$(($mem_total/($mem_total - $mem_available) * 100))`
-swap_usage=
+mem_usage=`free | grep Mem | awk '{print $3/$2 * 100.0}'`
+swap_usage=`free -t | grep Swap | awk '{print $3/$2 * 100.0}'`
 
 echo "Hostname: $hostname"
 echo "Linux Kernel Version: $kernel_version"
