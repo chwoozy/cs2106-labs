@@ -6,9 +6,18 @@
  */
 
 #include "sm.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+#include <signal.h>
+
+sm_status_t processArr[SM_MAX_SERVICES];
+size_t currProcess;
 
 // Use this function to any initialisation if you need to.
 void sm_init(void) {
+    currProcess = 0;
 }
 
 // Use this function to do any cleanup of resources.
@@ -17,15 +26,34 @@ void sm_free(void) {
 
 // Exercise 1a/2: start services
 void sm_start(const char *processes[]) {
-    int pid = fork();
+    pid_t pid = fork();
     
     if (pid == 0) {
-        execl(processes);
+        // execute process
+        execv(processes[0], (char *const *) processes);
     }
+    // initialise current status
+    sm_status_t currStatus;
+    currStatus.path = processes[0];
+    currStatus.pid = pid;
+    currStatus.running = true;
+
+    size_t processId = currProcess;
+    currProcess = currProcess + 1;
+    processArr[processId] = currStatus;
 }
 
 // Exercise 1b: print service status
 size_t sm_status(sm_status_t statuses[]) {
+    for(size_t i = 0; i < currProcess; i++) {
+        if (kill(processArr->pid, 0) == 0) {
+            processArr[i].running = true;
+        } else {
+            processArr[i].running = false;
+        }
+        statuses[i] = processArr[i];
+    }
+    return currProcess;
 }
 
 // Exercise 3: stop service, wait on service, and shutdown
