@@ -44,17 +44,20 @@ void sm_start(const char *processes[]) {
     }
     
     // create and store pipes
-    // int fds[cmdCount - 1][2];
-    // for (int i = 0; i < cmdCount - 1; i++) {
-    //     if (pipe(fds[i]) == -1) {
-    //         printf("Pipe Creation Failed");
-    //     }
-    // }
+    int fds[cmdCount - 1][2];
+    for (int i = 0; i < cmdCount - 1; i++) {
+        if (pipe(fds[i]) == -1) {
+            printf("Pipe Creation Failed");
+        }
+    }
 
     char** currPtr = (char**) &processes[0];
+    char *path;
+    pid_t finalpid;
     // stops when the next one is a NULL
     while(*currPtr != NULL) {
         char *singleProcess[SM_MAX_SERVICES];
+        path = *currPtr;
 
         for(size_t i = 0; i < SM_MAX_SERVICES; i++) {
             if (*currPtr == NULL) {
@@ -69,37 +72,43 @@ void sm_start(const char *processes[]) {
         pid_t pid = fork();
         
         if (pid == 0) {
-            // if (processCount == 0) {
-            //     close(fds[processCount][0]);
-            //     dup2(fds[processCount][1], STDOUT_FILENO);
-            // } else if (processCount == cmdCount - 1) {
-            //     close(fds[processCount - 1][1]);
-            //     dup2(fds[processCount - 1][0], STDIN_FILENO);
-            // } else {
-            //     close(fds[processCount - 1][1]);
-            //     dup2(fds[processCount - 1][0], STDIN_FILENO);
-            //     close(fds[processCount][0]);
-            //     dup2(fds[processCount][1], STDOUT_FILENO);
-            // }
-            printf("ASDASDASD");
+            if (processCount == 0) {
+                close(fds[processCount][0]);
+                dup2(fds[processCount][1], STDOUT_FILENO);
+            } else if (processCount == cmdCount - 1) {
+                close(fds[processCount - 1][1]);
+                dup2(fds[processCount - 1][0], STDIN_FILENO);
+            } else {
+                close(fds[processCount - 1][1]);
+                dup2(fds[processCount - 1][0], STDIN_FILENO);
+                close(fds[processCount][0]);
+                dup2(fds[processCount][1], STDOUT_FILENO);
+            }
             execv(singleProcess[0], (char *const *) singleProcess);
         }
 
         // close all pipes
-        // close(fds[processCount][0]);
-        // close(fds[processCount][1]);
+        if (processCount != cmdCount - 1) {
+            close(fds[processCount][0]);
+            close(fds[processCount][1]);
+        } else {
+            finalpid = pid;
+        }
+        
 
-        // initialise current status
-        sm_status_t currStatus;
-        currStatus.path = processes[0];
-        currStatus.pid = pid;
-        currStatus.running = true;
-
-        // save state
-        processArr[currProcess] = currStatus;
+        
         processCount++;
     }
 
+    // initialise current status
+    sm_status_t currStatus;
+    currStatus.path = path;
+    currStatus.pid = finalpid;
+    currStatus.running = true;
+
+    // save state
+    processArr[currProcess] = currStatus;
+    
     // update counter
     currProcess++;
 }
