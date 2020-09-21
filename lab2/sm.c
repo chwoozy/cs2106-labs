@@ -76,13 +76,15 @@ void sm_start(const char *processes[]) {
                 close(fds[processCount][0]);
                 dup2(fds[processCount][1], STDOUT_FILENO);
             } else if (processCount == cmdCount - 1) {
-                close(fds[processCount - 1][1]);
+                
                 dup2(fds[processCount - 1][0], STDIN_FILENO);
+                close(fds[processCount - 1][1]);
             } else {
                 close(fds[processCount - 1][1]);
                 dup2(fds[processCount - 1][0], STDIN_FILENO);
-                close(fds[processCount][0]);
+                
                 dup2(fds[processCount][1], STDOUT_FILENO);
+                close(fds[processCount][0]);
             }
             execv(singleProcess[0], (char *const *) singleProcess);
         }
@@ -94,9 +96,6 @@ void sm_start(const char *processes[]) {
         } else {
             finalpid = pid;
         }
-        
-
-        
         processCount++;
     }
 
