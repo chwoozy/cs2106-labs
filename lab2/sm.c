@@ -81,6 +81,7 @@ void sm_start(const char *processes[]) {
             //     close(fds[processCount][0]);
             //     dup2(fds[processCount][1], STDOUT_FILENO);
             // }
+            printf("ASDASDASD");
             execv(singleProcess[0], (char *const *) singleProcess);
         }
 
