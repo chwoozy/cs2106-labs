@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <errno.h>
 #include <signal.h>
 
 sm_status_t processArr[SM_MAX_SERVICES];
@@ -26,30 +27,90 @@ void sm_free(void) {
 
 // Exercise 1a/2: start services
 void sm_start(const char *processes[]) {
-    pid_t pid = fork();
-    
-    if (pid == 0) {
-        // execute process
-        execv(processes[0], (char *const *) processes);
+    int processCount = 0;
+    // count commands
+    char** cmdCountPtr = (char**) &processes[0];
+    int cmdCount = 0;
+    while (*cmdCountPtr != NULL) {
+        for (size_t i = 0; i < SM_MAX_SERVICES; i++) {
+            if (*cmdCountPtr == NULL) {
+                cmdCountPtr++;
+                cmdCount++;
+                break;
+            } else {
+                cmdCountPtr++;
+            }
+        }
     }
-    // initialise current status
-    sm_status_t currStatus;
-    currStatus.path = processes[0];
-    currStatus.pid = pid;
-    currStatus.running = true;
+    
+    // create and store pipes
+    // int fds[cmdCount - 1][2];
+    // for (int i = 0; i < cmdCount - 1; i++) {
+    //     if (pipe(fds[i]) == -1) {
+    //         printf("Pipe Creation Failed");
+    //     }
+    // }
 
-    size_t processId = currProcess;
-    currProcess = currProcess + 1;
-    processArr[processId] = currStatus;
+    char** currPtr = (char**) &processes[0];
+    // stops when the next one is a NULL
+    while(*currPtr != NULL) {
+        char *singleProcess[SM_MAX_SERVICES];
+
+        for(size_t i = 0; i < SM_MAX_SERVICES; i++) {
+            if (*currPtr == NULL) {
+                singleProcess[i] = NULL;
+                currPtr++;
+                break;
+            } else {
+                singleProcess[i] = *currPtr;
+                currPtr++;
+            }
+        }
+        pid_t pid = fork();
+        
+        if (pid == 0) {
+            // if (processCount == 0) {
+            //     close(fds[processCount][0]);
+            //     dup2(fds[processCount][1], STDOUT_FILENO);
+            // } else if (processCount == cmdCount - 1) {
+            //     close(fds[processCount - 1][1]);
+            //     dup2(fds[processCount - 1][0], STDIN_FILENO);
+            // } else {
+            //     close(fds[processCount - 1][1]);
+            //     dup2(fds[processCount - 1][0], STDIN_FILENO);
+            //     close(fds[processCount][0]);
+            //     dup2(fds[processCount][1], STDOUT_FILENO);
+            // }
+            execv(singleProcess[0], (char *const *) singleProcess);
+        }
+
+        // close all pipes
+        // close(fds[processCount][0]);
+        // close(fds[processCount][1]);
+
+        // initialise current status
+        sm_status_t currStatus;
+        currStatus.path = processes[0];
+        currStatus.pid = pid;
+        currStatus.running = true;
+
+        // save state
+        processArr[currProcess] = currStatus;
+        processCount++;
+    }
+
+    // update counter
+    currProcess++;
 }
 
 // Exercise 1b: print service status
 size_t sm_status(sm_status_t statuses[]) {
+    int status;
     for(size_t i = 0; i < currProcess; i++) {
-        if (kill(processArr->pid, 0) == 0) {
-            processArr[i].running = true;
-        } else {
+        if (waitpid(processArr[i].pid, &status, WNOHANG) != 0) {
             processArr[i].running = false;
+        } else {
+            processArr[i].running = true;
         }
         statuses[i] = processArr[i];
     }
