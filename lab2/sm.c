@@ -14,11 +14,10 @@
 #include <signal.h>
 
 sm_status_t processArr[SM_MAX_SERVICES];
-size_t currProcess;
+size_t currProcess = 0;
 
 // Use this function to any initialisation if you need to.
 void sm_init(void) {
-    currProcess = 0;
 }
 
 // Use this function to do any cleanup of resources.
@@ -31,7 +30,9 @@ void sm_start(const char *processes[]) {
     // count commands
     char** cmdCountPtr = (char**) &processes[0];
     int cmdCount = 0;
+    char *path;
     while (*cmdCountPtr != NULL) {
+        path = *cmdCountPtr;
         for (size_t i = 0; i < SM_MAX_SERVICES; i++) {
             if (*cmdCountPtr == NULL) {
                 cmdCountPtr++;
@@ -44,20 +45,21 @@ void sm_start(const char *processes[]) {
     }
     
     // create and store pipes
-    int fds[cmdCount - 1][2];
-    for (int i = 0; i < cmdCount - 1; i++) {
-        if (pipe(fds[i]) == -1) {
-            printf("Pipe Creation Failed");
-        }
-    }
+    // int fds[cmdCount - 1][2];
+    // if (cmdCount > 1) { 
+    //     for (int i = 0; i < cmdCount - 1; i++) {
+    //         if (pipe(fds[i]) == -1) {
+    //             printf("Pipe Creation Failed");
+    //         }
+    //     }
+    // }
+    
 
     char** currPtr = (char**) &processes[0];
-    char *path;
     pid_t finalpid;
     // stops when the next one is a NULL
     while(*currPtr != NULL) {
         char *singleProcess[SM_MAX_SERVICES];
-        path = *currPtr;
 
         for(size_t i = 0; i < SM_MAX_SERVICES; i++) {
             if (*currPtr == NULL) {
@@ -72,44 +74,50 @@ void sm_start(const char *processes[]) {
         pid_t pid = fork();
         
         if (pid == 0) {
-            if (processCount == 0) {
-                close(fds[processCount][0]);
-                dup2(fds[processCount][1], STDOUT_FILENO);
-            } else if (processCount == cmdCount - 1) {
-                
-                dup2(fds[processCount - 1][0], STDIN_FILENO);
-                close(fds[processCount - 1][1]);
-            } else {
-                close(fds[processCount - 1][1]);
-                dup2(fds[processCount - 1][0], STDIN_FILENO);
-                
-                dup2(fds[processCount][1], STDOUT_FILENO);
-                close(fds[processCount][0]);
-            }
+            // if (cmdCount > 1) {
+            //     if (processCount == 0) {
+            //         close(fds[processCount][0]);
+            //         dup2(fds[processCount][1], STDOUT_FILENO);
+            //     } else if (processCount == cmdCount - 1) {
+                    
+            //         dup2(fds[processCount - 1][0], STDIN_FILENO);
+            //         close(fds[processCount - 1][1]);
+            //     } else {
+            //         close(fds[processCount - 1][1]);
+            //         dup2(fds[processCount - 1][0], STDIN_FILENO);
+                    
+            //         dup2(fds[processCount][1], STDOUT_FILENO);
+            //         close(fds[processCount][0]);
+            //     }
+            // }
+            
             execv(singleProcess[0], (char *const *) singleProcess);
         }
 
         // close all pipes
         if (processCount != cmdCount - 1) {
-            close(fds[processCount][0]);
-            close(fds[processCount][1]);
+            // close(fds[processCount][0]);
+            // close(fds[processCount][1]);
         } else {
             finalpid = pid;
+            // initialise current status
+            sm_status_t currStatus;
+            currStatus.path = path;
+            currStatus.pid = finalpid;
+            currStatus.running = true;
+
+            // save state
+            processArr[currProcess] = currStatus;
+            printf("<%s>", processArr[0].path);
+            
+            // update counter
+            currProcess++;
         }
         processCount++;
     }
 
-    // initialise current status
-    sm_status_t currStatus;
-    currStatus.path = path;
-    currStatus.pid = finalpid;
-    currStatus.running = true;
-
-    // save state
-    processArr[currProcess] = currStatus;
     
-    // update counter
-    currProcess++;
+    
 }
 
 // Exercise 1b: print service status
