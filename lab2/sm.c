@@ -97,32 +97,6 @@ void sm_start(const char *processes[]) {
                 break;
 
             case CHILD:
-
-                for(int i = 0; i < cmdCount - 1; i++) {
-                    if (i != processCount) {
-                        switch (scenario) {
-                            case single:
-                                break;
-                            case start:
-                                close(fds[i][READ]);
-                                close(fds[i][WRITE]);
-                                break;
-                            case middle:
-                                if (i != (processCount - 1)) {
-                                    close(fds[i][READ]);
-                                    close(fds[i][WRITE]);
-                                }
-                                break;
-                            case end:
-                                if (i != (processCount - 1)) {
-                                    close(fds[i][READ]);
-                                    close(fds[i][WRITE]);
-                                }
-                                break;
-                        }
-                    }
-                }
-                
                 switch (scenario) {
                     case single: 
                         break;
@@ -132,7 +106,6 @@ void sm_start(const char *processes[]) {
                         if (dup2(fds[processCount][WRITE], STDOUT_FILENO) == ERROR) {
                             perror("[CW] Start dup error: write into pipe\n");
                         };
-                        // close(fds[processCount][WRITE]);
                         break;
 
                     case middle:
@@ -159,6 +132,33 @@ void sm_start(const char *processes[]) {
 
                     default: perror("[CW] Scenario not defined\n"); break;
                 }
+
+                for(int i = 0; i < cmdCount - 1; i++) {
+                    // if (i != processCount) {
+                    //     switch (scenario) {
+                    //         case single:
+                    //             break;
+                    //         case start:
+                    //             // close(fds[i][READ]);
+                    //             // close(fds[i][WRITE]);
+                    //             break;
+                    //         case middle:
+                    //             if (i != (processCount - 1)) {
+                    //                 // close(fds[i][READ]);
+                    //                 // close(fds[i][WRITE]);
+                    //             }
+                    //             break;
+                    //         case end:
+                    //             if (i != (processCount - 1)) {
+                    //                 // close(fds[i][READ]);
+                    //                 // close(fds[i][WRITE]);
+                    //             }
+                    //             break;
+                    //     }
+                    // }
+                    close(fds[i][READ]);
+                    close(fds[i][WRITE]);
+                }
                 
                 if (execv(singleProcess[0], (char *const *) singleProcess) == ERROR) {
                     perror("[CW] Failed to run command\n");
@@ -169,6 +169,15 @@ void sm_start(const char *processes[]) {
             default:
                 switch (scenario) {
                     case start: 
+                        // for (int i = 0; i < cmdCount - 1; i++) {
+                        //     if (close(fds[i][READ]) == ERROR) {
+                        //         perror("Parent close error [READ]");
+                        //     }
+                        //     if (close(fds[i][WRITE]) == ERROR) {
+                        //         perror("Parent close error [WRITE]");
+                        //     }
+                        // }
+                        break;
                     case middle:
                         // if (close(fds[processCount][READ]) == ERROR) {
                         //     perror("Parent close error [READ]");
@@ -178,7 +187,10 @@ void sm_start(const char *processes[]) {
                         // };
                         break;
 
+                    case single: goto _end;
+
                     case end:
+                        _end:
                         finalpid = pid;
                         char *finalpath;
                         finalpath = (char *) malloc(sizeof(char)*100);
@@ -199,6 +211,10 @@ void sm_start(const char *processes[]) {
                 }
                 processCount++;
         }
+    }
+    for (int i = 0; i < cmdCount - 1; i++) {
+        close(fds[i][READ]);
+        close(fds[i][WRITE]);
     }
 }
 
