@@ -161,11 +161,11 @@ void sm_start(const char *processes[]) {
                         // }
                         close(STDIN_FILENO);
                         if (dup(fds[processCount - 1][READ]) == ERROR) {
-                            perror("[CW] Middle dup error: replacing input\n");
+                            // perror("[CW] Middle dup error: replacing input\n");
                         }
                         close(STDOUT_FILENO);
                         if (dup(fds[processCount][WRITE]) == ERROR) {
-                            perror("[CW] Middle dup error: write into pipe\n");
+                            // perror("[CW] Middle dup error: write into pipe\n");
                         }
                         // close(fds[processCount - 1][READ]);
                         // close(fds[processCount][WRITE]);
@@ -178,7 +178,7 @@ void sm_start(const char *processes[]) {
                         // }
                         close(STDIN_FILENO);
                         if (dup(fds[processCount - 1][READ]) == ERROR) {
-                            perror("[CW] End dup error: replacing input\n");
+                            // perror("[CW] End dup error: replacing input\n");
                         }
                         // close(fds[processCount - 1][READ]);
                         break;
@@ -189,7 +189,6 @@ void sm_start(const char *processes[]) {
                 if (execv(singleProcess[0], (char *const *) singleProcess) == ERROR) {
                     perror("[CW] Failed to run command\n");
                 }
-                printf("Fasldkasdljasdlajdlajdlajsdasd");
                 break;
             // PARENT
             default:
