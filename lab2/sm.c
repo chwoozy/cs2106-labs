@@ -170,12 +170,12 @@ void sm_start(const char *processes[]) {
                 switch (scenario) {
                     case start: 
                     case middle:
-                        if (close(fds[processCount][READ]) == ERROR) {
-                            perror("Parent close error [READ]");
-                        }
-                        if (close(fds[processCount][WRITE]) == ERROR) {
-                            perror("Parent close error [WRITE]");
-                        };
+                        // if (close(fds[processCount][READ]) == ERROR) {
+                        //     perror("Parent close error [READ]");
+                        // }
+                        // if (close(fds[processCount][WRITE]) == ERROR) {
+                        //     perror("Parent close error [WRITE]");
+                        // };
                         break;
 
                     case end:
