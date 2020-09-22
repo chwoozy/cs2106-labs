@@ -13,11 +13,22 @@
 #include <errno.h>
 #include <signal.h>
 
+#define ERROR -1
+#define READ 0
+#define WRITE 1
+#define CHILD 0
+#define PARENT != 0
+#define start 0
+#define middle 1
+#define end 2
+#define single 3
+
 sm_status_t processArr[SM_MAX_SERVICES];
-size_t currProcess = 0;
+size_t currProcess;
 
 // Use this function to any initialisation if you need to.
 void sm_init(void) {
+    currProcess = 0;
 }
 
 // Use this function to do any cleanup of resources.
@@ -27,6 +38,7 @@ void sm_free(void) {
 // Exercise 1a/2: start services
 void sm_start(const char *processes[]) {
     int processCount = 0;
+
     // count commands
     char** cmdCountPtr = (char**) &processes[0];
     int cmdCount = 0;
@@ -43,24 +55,28 @@ void sm_start(const char *processes[]) {
             }
         }
     }
+
+    
     
     // create and store pipes
-    // int fds[cmdCount - 1][2];
-    // if (cmdCount > 1) { 
-    //     for (int i = 0; i < cmdCount - 1; i++) {
-    //         if (pipe(fds[i]) == -1) {
-    //             printf("Pipe Creation Failed");
-    //         }
-    //     }
-    // }
+    int fds[cmdCount - 1][2];
+    if (cmdCount > 1) { 
+        for (int i = 0; i < cmdCount - 1; i++) {
+            if (pipe(fds[i]) == -1) {
+                perror("[CW] Pipe Creation Failed\n");
+                break;
+            }
+        }
+    }
     
 
     char** currPtr = (char**) &processes[0];
     pid_t finalpid;
-    // stops when the next one is a NULL
-    while(*currPtr != NULL) {
-        char *singleProcess[SM_MAX_SERVICES];
 
+    // process commands
+    while(*currPtr != NULL) {
+        // retrieve single command
+        char *singleProcess[SM_MAX_SERVICES];
         for(size_t i = 0; i < SM_MAX_SERVICES; i++) {
             if (*currPtr == NULL) {
                 singleProcess[i] = NULL;
@@ -71,53 +87,128 @@ void sm_start(const char *processes[]) {
                 currPtr++;
             }
         }
-        pid_t pid = fork();
-        
-        if (pid == 0) {
-            // if (cmdCount > 1) {
-            //     if (processCount == 0) {
-            //         close(fds[processCount][0]);
-            //         dup2(fds[processCount][1], STDOUT_FILENO);
-            //     } else if (processCount == cmdCount - 1) {
-                    
-            //         dup2(fds[processCount - 1][0], STDIN_FILENO);
-            //         close(fds[processCount - 1][1]);
-            //     } else {
-            //         close(fds[processCount - 1][1]);
-            //         dup2(fds[processCount - 1][0], STDIN_FILENO);
-                    
-            //         dup2(fds[processCount][1], STDOUT_FILENO);
-            //         close(fds[processCount][0]);
-            //     }
-            // }
-            
-            execv(singleProcess[0], (char *const *) singleProcess);
-        }
+        int scenario = cmdCount == 1 ? 3 : processCount == 0 ? 0 : processCount == (cmdCount - 1) ? 2 : 1;
+        // begin command processing
+        pid_t pid;
+        switch (pid = fork()) {
+            case ERROR: 
+                perror("[CW] Error in creating child processes\n"); 
+                break;
 
-        // close all pipes
-        if (processCount != cmdCount - 1) {
-            // close(fds[processCount][0]);
-            // close(fds[processCount][1]);
-        } else {
-            finalpid = pid;
-            // initialise current status
-            sm_status_t currStatus;
-            currStatus.path = path;
-            currStatus.pid = finalpid;
-            currStatus.running = true;
+            case CHILD:
 
-            // save state
-            processArr[currProcess] = currStatus;
-            printf("<%s>", processArr[0].path);
-            
-            // update counter
-            currProcess++;
+                for(int i = 0; i < cmdCount - 1; i++) {
+                    if (i != processCount) {
+                        switch (scenario) {
+                            case single:
+                                break;
+                            case start:
+                                close(fds[i][READ]);
+                                close(fds[i][WRITE]);
+                                break;
+                            case middle:
+                                if (i != (processCount - 1)) {
+                                    close(fds[i][READ]);
+                                    close(fds[i][WRITE]);
+                                }
+                                break;
+                            case end:
+                                if (i != (processCount - 1)) {
+                                    close(fds[i][READ]);
+                                    close(fds[i][WRITE]);
+                                }
+                                break;
+                        }
+                    }
+                }
+                
+                switch (scenario) {
+                    case single: 
+                        break;
+
+                    case start:
+                        close(fds[processCount][READ]);
+                        int sfd = dup(STDOUT_FILENO);
+                        if (sfd == ERROR) {
+                            perror("[CW] Start dup error: fetching output\n");
+                        } else {
+                            if (dup2(sfd, fds[processCount][WRITE]) == ERROR) {
+                                perror("[CW] Start dup error: write into pipe\n");
+                            };
+                        }
+                        // close(fds[processCount][WRITE]);
+                        break;
+
+                    case middle:
+                        close(fds[processCount - 1][WRITE]);
+                        close(fds[processCount][READ]);
+                        
+                        if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
+                            
+                            perror("[CW] Middle dup error: replacing input\n");
+                        }
+                        int mfd = dup(STDOUT_FILENO);
+                        if (mfd == ERROR) {
+                            perror("[CW] Middle dup error: fetching output\n");
+                        } else {
+                            if (dup2(mfd, fds[processCount][WRITE]) == ERROR) {
+                                perror("[CW] Middle dup error: write into pipe\n");
+                            }
+                        }
+                        // close(fds[processCount - 1][READ]);
+                        // close(fds[processCount][WRITE]);
+                        break;
+
+                    case end:
+                        close(fds[processCount - 1][WRITE]);
+                        if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
+                            perror("[CW] End dup error: replacing input\n");
+                        }
+                        // close(fds[processCount - 1][READ]);
+                        break;
+
+                    default: perror("[CW] Scenario not defined\n"); break;
+                }
+                // fflush(stdout);
+                if (execv(singleProcess[0], (char *const *) singleProcess) == ERROR) {
+                    perror("[CW] Failed to run command\n");
+                }
+                break;
+            // PARENT
+            default:
+                switch (scenario) {
+                    case start: 
+                    case middle:
+                        if (close(fds[processCount][READ]) == ERROR) {
+                            perror("Close Error Read");
+                        }
+                        if (close(fds[processCount][WRITE]) == ERROR) {
+                            perror("Close Error Write");
+                        };
+                        break;
+
+                    case end:
+                        finalpid = pid;
+                        char *finalpath;
+                        finalpath = (char *) malloc(sizeof(char)*100);
+                        strcpy(finalpath, path);
+
+                        // initialise current status
+                        sm_status_t currStatus;
+                        currStatus.path = finalpath;
+                        currStatus.pid = finalpid;
+                        currStatus.running = true;
+
+                        // save state
+                        processArr[currProcess] = currStatus;
+                        currProcess++;
+                        break;
+
+                    default: perror("[CW] Scenario not defined in parent\n"); break;
+                }
+                processCount++;
         }
-        processCount++;
     }
-
-    
-    
 }
 
 // Exercise 1b: print service status
@@ -130,6 +221,7 @@ size_t sm_status(sm_status_t statuses[]) {
             processArr[i].running = true;
         }
         statuses[i] = processArr[i];
+        // strcpy(statuses[i].path, processArr[i].path);
     }
     return currProcess;
 }
