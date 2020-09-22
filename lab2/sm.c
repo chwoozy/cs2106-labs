@@ -159,14 +159,13 @@ void sm_start(const char *processes[]) {
                         //         perror("[CW] Middle dup error: write into pipe\n");
                         //     }
                         // }
-                        close(STDIN_FILENO);
-                        if (dup(fds[processCount - 1][READ]) == ERROR) {
-                            // perror("[CW] Middle dup error: replacing input\n");
+                        if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
+                            perror("[CW] Middle dup error: replacing input\n");
                         }
                         close(STDOUT_FILENO);
                         if (dup(fds[processCount][WRITE]) == ERROR) {
-                            // perror("[CW] Middle dup error: write into pipe\n");
-                        }
+                            perror("[CW] Middle dup error: write into pipe\n");
+                        };
                         // close(fds[processCount - 1][READ]);
                         // close(fds[processCount][WRITE]);
                         break;
