@@ -189,6 +189,7 @@ void sm_start(const char *processes[]) {
                 if (execv(singleProcess[0], (char *const *) singleProcess) == ERROR) {
                     perror("[CW] Failed to run command\n");
                 }
+                printf("Fasldkasdljasdlajdlajdlajsdasd");
                 break;
             // PARENT
             default:
