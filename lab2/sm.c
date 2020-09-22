@@ -128,14 +128,18 @@ void sm_start(const char *processes[]) {
 
                     case start:
                         close(fds[processCount][READ]);
-                        int sfd = dup(STDOUT_FILENO);
-                        if (sfd == ERROR) {
-                            perror("[CW] Start dup error: fetching output\n");
-                        } else {
-                            if (dup2(sfd, fds[processCount][WRITE]) == ERROR) {
-                                perror("[CW] Start dup error: write into pipe\n");
-                            };
-                        }
+                        // int sfd = dup(STDOUT_FILENO);
+                        // if (sfd == ERROR) {
+                        //     perror("[CW] Start dup error: fetching output\n");
+                        // } else {
+                        //     if (dup2(sfd, fds[processCount][WRITE]) == ERROR) {
+                        //         perror("[CW] Start dup error: write into pipe\n");
+                        //     };
+                        // }
+                        close(STDOUT_FILENO);
+                        if (dup(fds[processCount][WRITE]) == ERROR) {
+                            perror("[CW] Start dup error: write into pipe\n");
+                        };
                         // close(fds[processCount][WRITE]);
                         break;
 
@@ -143,17 +147,25 @@ void sm_start(const char *processes[]) {
                         close(fds[processCount - 1][WRITE]);
                         close(fds[processCount][READ]);
                         
-                        if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
+                        // if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
                             
+                        //     perror("[CW] Middle dup error: replacing input\n");
+                        // }
+                        // int mfd = dup(STDOUT_FILENO);
+                        // if (mfd == ERROR) {
+                        //     perror("[CW] Middle dup error: fetching output\n");
+                        // } else {
+                        //     if (dup2(mfd, fds[processCount][WRITE]) == ERROR) {
+                        //         perror("[CW] Middle dup error: write into pipe\n");
+                        //     }
+                        // }
+                        close(STDIN_FILENO);
+                        if (dup(fds[processCount - 1][READ]) == ERROR) {
                             perror("[CW] Middle dup error: replacing input\n");
                         }
-                        int mfd = dup(STDOUT_FILENO);
-                        if (mfd == ERROR) {
-                            perror("[CW] Middle dup error: fetching output\n");
-                        } else {
-                            if (dup2(mfd, fds[processCount][WRITE]) == ERROR) {
-                                perror("[CW] Middle dup error: write into pipe\n");
-                            }
+                        close(STDOUT_FILENO);
+                        if (dup(fds[processCount][WRITE]) == ERROR) {
+                            perror("[CW] Middle dup error: write into pipe\n");
                         }
                         // close(fds[processCount - 1][READ]);
                         // close(fds[processCount][WRITE]);
@@ -161,7 +173,11 @@ void sm_start(const char *processes[]) {
 
                     case end:
                         close(fds[processCount - 1][WRITE]);
-                        if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
+                        // if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
+                        //     perror("[CW] End dup error: replacing input\n");
+                        // }
+                        close(STDIN_FILENO);
+                        if (dup(fds[processCount - 1][READ]) == ERROR) {
                             perror("[CW] End dup error: replacing input\n");
                         }
                         // close(fds[processCount - 1][READ]);
