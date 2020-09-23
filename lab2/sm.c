@@ -49,7 +49,7 @@ void sm_init(void) {
 void sm_free(void) {
     for (int i = 0; i < SM_MAX_SERVICES; i++) {
         for (int j = 0; j < SM_MAX_SERVICES; j++) {
-            free(processArr[i][j].path);
+            free((char *) processArr[i][j].path);
         }
     }
 }
@@ -76,11 +76,11 @@ void sm_start(const char *processes[]) {
     }
     
     // create and store pipes
-    int fds[cmdCount - 1][2];
+    int fdsArr[cmdCount - 1][2];
     if (cmdCount > 1) { 
         for (int i = 0; i < cmdCount - 1; i++) {
-            if (pipe(fds[i]) == -1) {
-                perror("[CW] Pipe Creation Failed\n");
+            if (pipe(fdsArr[i]) == ERROR) {
+                // perror("[CW] Pipe Creation Failed\n");
                 break;
             }
         }
@@ -110,7 +110,7 @@ void sm_start(const char *processes[]) {
         pid_t pid = fork();
         switch (pid) {
             case ERROR: 
-                perror("[CW] Error in creating child processes\n"); 
+                // perror("[CW] Error in creating child processes\n"); 
                 break;
 
             case CHILD:
@@ -119,44 +119,46 @@ void sm_start(const char *processes[]) {
                         break;
 
                     case start:
-                        close(fds[processCount][READ]);
-                        if (dup2(fds[processCount][WRITE], STDOUT_FILENO) == ERROR) {
-                            perror("[CW] Start dup error: write into pipe\n");
+                        close(fdsArr[processCount][READ]);
+                        if (dup2(fdsArr[processCount][WRITE], STDOUT_FILENO) == ERROR) {
+                            // perror("[CW] Start dup error: write into pipe\n");
                         };
                         break;
 
                     case middle:
-                        close(fds[processCount - 1][WRITE]);
-                        if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
-                            perror("[CW] Middle dup error: replacing input\n");
+                        close(fdsArr[processCount - 1][WRITE]);
+                        if (dup2(fdsArr[processCount - 1][READ], STDIN_FILENO) == ERROR) {
+                            // perror("[CW] Middle dup error: replacing input\n");
                         }
-                        close(fds[processCount - 1][READ]);
+                        close(fdsArr[processCount - 1][READ]);
 
-                        close(fds[processCount][READ]);
-                        if (dup2(fds[processCount][WRITE], STDOUT_FILENO) == ERROR) {
-                            perror("[CW] Middle dup error: write into pipe\n");
+                        close(fdsArr[processCount][READ]);
+                        if (dup2(fdsArr[processCount][WRITE], STDOUT_FILENO) == ERROR) {
+                            // perror("[CW] Middle dup error: write into pipe\n");
                         }
-                        close(fds[processCount][WRITE]);
+                        close(fdsArr[processCount][WRITE]);
                         break;
 
                     case end:
-                        close(fds[processCount - 1][WRITE]);
-                        if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
-                            perror("[CW] End dup error: replacing input\n");
+                        close(fdsArr[processCount - 1][WRITE]);
+                        if (dup2(fdsArr[processCount - 1][READ], STDIN_FILENO) == ERROR) {
+                            // perror("[CW] End dup error: replacing input\n");
                         }
-                        close(fds[processCount - 1][READ]);
+                        close(fdsArr[processCount - 1][READ]);
                         break;
 
-                    default: perror("[CW] Scenario not defined\n"); break;
+                    default: 
+                        // perror("[CW] Scenario not defined\n"); 
+                        break;
                 }
 
                 for(int i = 0; i < cmdCount - 1; i++) {
-                    close(fds[i][READ]);
-                    close(fds[i][WRITE]);
+                    close(fdsArr[i][READ]);
+                    close(fdsArr[i][WRITE]);
                 }
                 
                 if (execv(singleProcess[0], (char *const *) singleProcess) == ERROR) {
-                    perror("[CW] Failed to run command\n");
+                    // perror("[CW] Failed to run command\n");
                 }
                 break;
 
@@ -180,8 +182,8 @@ void sm_start(const char *processes[]) {
         }
     }
     for (int i = 0; i < cmdCount - 1; i++) {
-        close(fds[i][READ]);
-        close(fds[i][WRITE]);
+        close(fdsArr[i][READ]);
+        close(fdsArr[i][WRITE]);
     }
     currProcess++;
 }
@@ -271,11 +273,11 @@ void sm_startlog(const char *processes[]) {
     
     
     // create and store pipes
-    int fds[cmdCount - 1][2];
+    int fdsArr[cmdCount - 1][2];
     if (cmdCount > 1) { 
         for (int i = 0; i < cmdCount - 1; i++) {
-            if (pipe(fds[i]) == -1) {
-                perror("[CW] Pipe Creation Failed\n");
+            if (pipe(fdsArr[i]) == -1) {
+                // perror("[CW] Pipe Creation Failed\n");
                 break;
             }
         }
@@ -305,7 +307,7 @@ void sm_startlog(const char *processes[]) {
         pid_t pid = fork();
         switch (pid) {
             case ERROR: 
-                perror("[CW] Error in creating child processes\n"); 
+                // perror("[CW] Error in creating child processes\n"); 
                 break;
 
             case CHILD:
@@ -314,35 +316,37 @@ void sm_startlog(const char *processes[]) {
                         break;
 
                     case start:
-                        close(fds[processCount][READ]);
-                        if (dup2(fds[processCount][WRITE], STDOUT_FILENO) == ERROR) {
-                            perror("[CW] Start dup error: write into pipe\n");
+                        close(fdsArr[processCount][READ]);
+                        if (dup2(fdsArr[processCount][WRITE], STDOUT_FILENO) == ERROR) {
+                            // perror("[CW] Start dup error: write into pipe\n");
                         };
                         break;
 
                     case middle:
-                        close(fds[processCount - 1][WRITE]);
-                        if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
-                            perror("[CW] Middle dup error: replacing input\n");
+                        close(fdsArr[processCount - 1][WRITE]);
+                        if (dup2(fdsArr[processCount - 1][READ], STDIN_FILENO) == ERROR) {
+                            // perror("[CW] Middle dup error: replacing input\n");
                         }
-                        close(fds[processCount - 1][READ]);
+                        close(fdsArr[processCount - 1][READ]);
 
-                        close(fds[processCount][READ]);
-                        if (dup2(fds[processCount][WRITE], STDOUT_FILENO) == ERROR) {
-                            perror("[CW] Middle dup error: write into pipe\n");
+                        close(fdsArr[processCount][READ]);
+                        if (dup2(fdsArr[processCount][WRITE], STDOUT_FILENO) == ERROR) {
+                            // perror("[CW] Middle dup error: write into pipe\n");
                         }
-                        close(fds[processCount][WRITE]);
+                        close(fdsArr[processCount][WRITE]);
                         break;
 
                     case end:
-                        close(fds[processCount - 1][WRITE]);
-                        if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
-                            perror("[CW] End dup error: replacing input\n");
+                        close(fdsArr[processCount - 1][WRITE]);
+                        if (dup2(fdsArr[processCount - 1][READ], STDIN_FILENO) == ERROR) {
+                            // perror("[CW] End dup error: replacing input\n");
                         }
-                        close(fds[processCount - 1][READ]);
+                        close(fdsArr[processCount - 1][READ]);
                         break;
 
-                    default: perror("[CW] Scenario not defined\n"); break;
+                    default: 
+                        // perror("[CW] Scenario not defined\n");
+                        break;
                 }
                 if (scenario == single || scenario == end) {
                     char num[10];
@@ -354,12 +358,12 @@ void sm_startlog(const char *processes[]) {
                 }
 
                 for(int i = 0; i < cmdCount - 1; i++) {
-                    close(fds[i][READ]);
-                    close(fds[i][WRITE]);
+                    close(fdsArr[i][READ]);
+                    close(fdsArr[i][WRITE]);
                 }
                 
                 if (execv(singleProcess[0], (char *const *) singleProcess) == ERROR) {
-                    perror("[CW] Failed to run command\n");
+                    // perror("[CW] Failed to run command\n");
                 }
                 break;
 
@@ -384,8 +388,8 @@ void sm_startlog(const char *processes[]) {
         }
     }
     for (int i = 0; i < cmdCount - 1; i++) {
-        close(fds[i][READ]);
-        close(fds[i][WRITE]);
+        close(fdsArr[i][READ]);
+        close(fdsArr[i][WRITE]);
     }
     currProcess++;
 }
@@ -407,6 +411,6 @@ void sm_showlog(size_t index) {
         }
         fclose(file);
     } else {
-        printf("service has no log file");
+        printf("service has no log file\n");
     }
 }
