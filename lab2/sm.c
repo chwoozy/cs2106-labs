@@ -47,157 +47,162 @@ void sm_init(void) {
 
 // Use this function to do any cleanup of resources.
 void sm_free(void) {
+    for (int i = 0; i < SM_MAX_SERVICES; i++) {
+        for (int j = 0; j < SM_MAX_SERVICES; j++) {
+            free(processArr[i][j].path);
+        }
+    }
 }
 
 // Exercise 1a/2: start services
 void sm_start(const char *processes[]) {
-//     int processCount = 0;
+    int processCount = 0;
 
-//     // count commands
-//     char** cmdCountPtr = (char**) &processes[0];
-//     int cmdCount = 0;
-//     char *path;
-//     while (*cmdCountPtr != NULL) {
-//         path = *cmdCountPtr;
-//         for (size_t i = 0; i < SM_MAX_SERVICES; i++) {
-//             if (*cmdCountPtr == NULL) {
-//                 cmdCountPtr++;
-//                 cmdCount++;
-//                 break;
-//             } else {
-//                 cmdCountPtr++;
-//             }
-//         }
-//     }
+    // count commands
+    char** cmdCountPtr = (char**) &processes[0];
+    int cmdCount = 0;
+    char *path;
+    while (*cmdCountPtr != NULL) {
+        path = *cmdCountPtr;
+        for (size_t i = 0; i < SM_MAX_SERVICES; i++) {
+            if (*cmdCountPtr == NULL) {
+                cmdCountPtr++;
+                cmdCount++;
+                break;
+            } else {
+                cmdCountPtr++;
+            }
+        }
+    }
     
-//     // create and store pipes
-//     int fds[cmdCount - 1][2];
-//     if (cmdCount > 1) { 
-//         for (int i = 0; i < cmdCount - 1; i++) {
-//             if (pipe(fds[i]) == -1) {
-//                 perror("[CW] Pipe Creation Failed\n");
-//                 break;
-//             }
-//         }
-//     }
+    // create and store pipes
+    int fds[cmdCount - 1][2];
+    if (cmdCount > 1) { 
+        for (int i = 0; i < cmdCount - 1; i++) {
+            if (pipe(fds[i]) == -1) {
+                perror("[CW] Pipe Creation Failed\n");
+                break;
+            }
+        }
+    }
     
 
-//     char** currPtr = (char**) &processes[0];
-//     pid_t finalpid;
+    char** currPtr = (char**) &processes[0];
+    pid_t finalpid;
 
-//     // process commands
-//     while(*currPtr != NULL) {
-//         // retrieve single command
-//         char *singleProcess[SM_MAX_SERVICES];
-//         for(size_t i = 0; i < SM_MAX_SERVICES; i++) {
-//             if (*currPtr == NULL) {
-//                 singleProcess[i] = NULL;
-//                 currPtr++;
-//                 break;
-//             } else {
-//                 singleProcess[i] = *currPtr;
-//                 currPtr++;
-//             }
-//         }
-//         int scenario = cmdCount == 1 ? 3 : processCount == 0 ? 0 : processCount == (cmdCount - 1) ? 2 : 1;
+    // process commands
+    while(*currPtr != NULL) {
+        // retrieve single command
+        char *singleProcess[SM_MAX_SERVICES];
+        for(size_t i = 0; i < SM_MAX_SERVICES; i++) {
+            if (*currPtr == NULL) {
+                singleProcess[i] = NULL;
+                currPtr++;
+                break;
+            } else {
+                singleProcess[i] = *currPtr;
+                currPtr++;
+            }
+        }
+        int scenario = cmdCount == 1 ? 3 : processCount == 0 ? 0 : processCount == (cmdCount - 1) ? 2 : 1;
 
-//         // begin command processing
-//         pid_t pid = fork();
-//         switch (pid) {
-//             case ERROR: 
-//                 perror("[CW] Error in creating child processes\n"); 
-//                 break;
+        // begin command processing
+        pid_t pid = fork();
+        switch (pid) {
+            case ERROR: 
+                perror("[CW] Error in creating child processes\n"); 
+                break;
 
-//             case CHILD:
-//                 switch (scenario) {
-//                     case single: 
-//                         break;
+            case CHILD:
+                switch (scenario) {
+                    case single: 
+                        break;
 
-//                     case start:
-//                         close(fds[processCount][READ]);
-//                         if (dup2(fds[processCount][WRITE], STDOUT_FILENO) == ERROR) {
-//                             perror("[CW] Start dup error: write into pipe\n");
-//                         };
-//                         break;
+                    case start:
+                        close(fds[processCount][READ]);
+                        if (dup2(fds[processCount][WRITE], STDOUT_FILENO) == ERROR) {
+                            perror("[CW] Start dup error: write into pipe\n");
+                        };
+                        break;
 
-//                     case middle:
-//                         close(fds[processCount - 1][WRITE]);
-//                         if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
-//                             perror("[CW] Middle dup error: replacing input\n");
-//                         }
-//                         close(fds[processCount - 1][READ]);
+                    case middle:
+                        close(fds[processCount - 1][WRITE]);
+                        if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
+                            perror("[CW] Middle dup error: replacing input\n");
+                        }
+                        close(fds[processCount - 1][READ]);
 
-//                         close(fds[processCount][READ]);
-//                         if (dup2(fds[processCount][WRITE], STDOUT_FILENO) == ERROR) {
-//                             perror("[CW] Middle dup error: write into pipe\n");
-//                         }
-//                         close(fds[processCount][WRITE]);
-//                         break;
+                        close(fds[processCount][READ]);
+                        if (dup2(fds[processCount][WRITE], STDOUT_FILENO) == ERROR) {
+                            perror("[CW] Middle dup error: write into pipe\n");
+                        }
+                        close(fds[processCount][WRITE]);
+                        break;
 
-//                     case end:
-//                         close(fds[processCount - 1][WRITE]);
-//                         if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
-//                             perror("[CW] End dup error: replacing input\n");
-//                         }
-//                         close(fds[processCount - 1][READ]);
-//                         break;
+                    case end:
+                        close(fds[processCount - 1][WRITE]);
+                        if (dup2(fds[processCount - 1][READ], STDIN_FILENO) == ERROR) {
+                            perror("[CW] End dup error: replacing input\n");
+                        }
+                        close(fds[processCount - 1][READ]);
+                        break;
 
-//                     default: perror("[CW] Scenario not defined\n"); break;
-//                 }
+                    default: perror("[CW] Scenario not defined\n"); break;
+                }
 
-//                 for(int i = 0; i < cmdCount - 1; i++) {
-//                     close(fds[i][READ]);
-//                     close(fds[i][WRITE]);
-//                 }
+                for(int i = 0; i < cmdCount - 1; i++) {
+                    close(fds[i][READ]);
+                    close(fds[i][WRITE]);
+                }
                 
-//                 if (execv(singleProcess[0], (char *const *) singleProcess) == ERROR) {
-//                     perror("[CW] Failed to run command\n");
-//                 }
-//                 break;
+                if (execv(singleProcess[0], (char *const *) singleProcess) == ERROR) {
+                    perror("[CW] Failed to run command\n");
+                }
+                break;
 
-//             // PARENT
-//             default:
-//                 finalpid = pid;
-//                 char *finalpath;
-//                 finalpath = (char *) malloc(sizeof(char)*100);
-//                 strcpy(finalpath, path);
+            // PARENT
+            default:
+                finalpid = pid;
+                char *finalpath;
+                finalpath = (char *) malloc(sizeof(char)*100);
+                strcpy(finalpath, path);
 
-//                 // initialise current status
-//                 sm_status_t currStatus;
-//                 currStatus.path = finalpath;
-//                 currStatus.pid = finalpid;
-//                 currStatus.running = true;
+                // initialise current status
+                sm_status_t currStatus;
+                currStatus.path = finalpath;
+                currStatus.pid = finalpid;
+                currStatus.running = true;
 
-//                 // save state
-//                 processArr[currProcess][processCount] = currStatus;
-//                 processCount++;
-//                 break;
-//         }
-//     }
-//     for (int i = 0; i < cmdCount - 1; i++) {
-//         close(fds[i][READ]);
-//         close(fds[i][WRITE]);
-//     }
-//     currProcess++;
-// }
+                // save state
+                processArr[currProcess][processCount] = currStatus;
+                processCount++;
+                break;
+        }
+    }
+    for (int i = 0; i < cmdCount - 1; i++) {
+        close(fds[i][READ]);
+        close(fds[i][WRITE]);
+    }
+    currProcess++;
+}
 
-// // Exercise 1b: print service status
-// size_t sm_status(sm_status_t statuses[]) {
-//     int status;
-//     for(size_t i = 0; i < currProcess; i++) {
-//         for(size_t j = 0; j < SM_MAX_SERVICES; j++) {
-//             if ((processArr[i][j + 1]).path == NULL && (processArr[i][j + 1]).pid == ERROR) {
-//                 if (waitpid(processArr[i][j].pid, &status, WNOHANG) != 0) {
-//                     processArr[i][j].running = false;
-//                 } else {
-//                     processArr[i][j].running = true;
-//                 }
-//                 statuses[i] = processArr[i][j];
-//                 break;
-//             }
-//         }
-//     }
-//     return currProcess;
+// Exercise 1b: print service status
+size_t sm_status(sm_status_t statuses[]) {
+    int status;
+    for(size_t i = 0; i < currProcess; i++) {
+        for(size_t j = 0; j < SM_MAX_SERVICES; j++) {
+            if ((processArr[i][j + 1]).path == NULL && (processArr[i][j + 1]).pid == ERROR) {
+                if (waitpid(processArr[i][j].pid, &status, WNOHANG) != 0) {
+                    processArr[i][j].running = false;
+                } else {
+                    processArr[i][j].running = true;
+                }
+                statuses[i] = processArr[i][j];
+                break;
+            }
+        }
+    }
+    return currProcess;
 }
 
 // Exercise 3: stop service, wait on service, and shutdown
