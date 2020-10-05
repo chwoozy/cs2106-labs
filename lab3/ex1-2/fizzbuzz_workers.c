@@ -42,9 +42,6 @@ void num_thread( int n, void (*print_num)(int) ) {
             sem_post(&num_sem);
         }
     }
-    if (count == 1) {
-        print_num(curr);
-    }
 }
 
 void fizz_thread( int n, void (*print_fizz)(void) ) {
