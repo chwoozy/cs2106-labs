@@ -26,6 +26,7 @@ void fizzbuzz_init ( int n ) {
 }
 
 void num_thread( int n, void (*print_num)(int) ) {
+    
     while(curr != count) {
         sem_wait(&num_sem);
         print_num(curr);
@@ -39,6 +40,9 @@ void num_thread( int n, void (*print_num)(int) ) {
         } else {
             sem_post(&num_sem);
         }
+    }
+    if (count == 1) {
+        print_num(curr);
     }
 }
 
