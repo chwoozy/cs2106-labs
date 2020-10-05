@@ -16,14 +16,15 @@ void barrier_init ( barrier_t *barrier, int count ) {
 }
 
 void barrier_wait ( barrier_t *barrier ) {
-    if (barrier->count == 1) {
-        barrier->count--;
+    barrier->count--;
+    if (barrier->count == 0) {
         sem_post(&(barrier->sem));
-    } else {
-        barrier->count--;
     }
+    sem_wait(&(barrier->sem));
+    sem_post(&(barrier->sem));
 }
 
 // Perform cleanup here if you need to
 void barrier_destroy ( barrier_t *barrier ) {
+    sem_destroy(&(barrier->sem));
 }
