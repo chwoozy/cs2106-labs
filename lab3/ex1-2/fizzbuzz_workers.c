@@ -27,11 +27,12 @@ void fizzbuzz_init ( int n ) {
 
 void num_thread( int n, void (*print_num)(int) ) {
     
-    while(curr != count) {
+    while(curr - 1 != count) {
         sem_wait(&num_sem);
         print_num(curr);
         curr++;
-        if (curr % 3 == 0) { // multiple of 3
+        if (curr - 1 == count) {}
+        else if (curr % 3 == 0) { // multiple of 3
             sem_post(&fizz_sem);
         } else if (curr % 5 == 0) { // multiple of 5
             sem_post(&buzz_sem);
@@ -47,11 +48,12 @@ void num_thread( int n, void (*print_num)(int) ) {
 }
 
 void fizz_thread( int n, void (*print_fizz)(void) ) {
-    while(curr != count) {
+    while(curr - 1 != count) {
         sem_wait(&fizz_sem);
         print_fizz();
         curr++;
-        if (curr % 3 == 0) { // multiple of 3
+        if (curr - 1 == count) {}
+        else if (curr % 3 == 0) { // multiple of 3
             sem_post(&fizz_sem);
         } else if (curr % 5 == 0) { // multiple of 5
             sem_post(&buzz_sem);
@@ -64,11 +66,12 @@ void fizz_thread( int n, void (*print_fizz)(void) ) {
 }
 
 void buzz_thread( int n, void (*print_buzz)(void) ) {
-    while(curr != count) {
+    while(curr - 1 != count) {
         sem_wait(&buzz_sem);
         print_buzz();
         curr++;
-        if (curr % 3 == 0) { // multiple of 3
+        if (curr - 1 == count) {}
+        else if (curr % 3 == 0) { // multiple of 3
             sem_post(&fizz_sem);
         } else if (curr % 5 == 0) { // multiple of 5
             sem_post(&buzz_sem);
@@ -81,11 +84,12 @@ void buzz_thread( int n, void (*print_buzz)(void) ) {
 }
 
 void fizzbuzz_thread( int n, void (*print_fizzbuzz)(void) ) {
-    while(curr != count) {
+    while(curr - 1 != count) {
         sem_wait(&fizzbuzz_sem);
         print_fizzbuzz();
         curr++;
-        if (curr % 3 == 0) { // multiple of 3
+        if (curr - 1 == count) {}
+        else if (curr % 3 == 0) { // multiple of 3
             sem_post(&fizz_sem);
         } else if (curr % 5 == 0) { // multiple of 5
             sem_post(&buzz_sem);
