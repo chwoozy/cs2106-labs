@@ -6,6 +6,7 @@
  */
 #include "exit_controller.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 sem_t exitSem, queue;
 int atom;
@@ -26,7 +27,6 @@ void exit_controller_init(exit_controller_t *exit_controller, int no_of_prioriti
 
 void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     sem_wait(&queue); // Start Queue
-    printf("Start");
     sem_t node;
     if (atom > 0) {
         sem_init(&node, 1, 1);
@@ -38,7 +38,6 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     enqueueX(exit_controller, currNode, priority);
     sem_post(&queue); // End Queue
     sem_wait(&node);
-    printf("Exiting");
 }
 
 void exit_controller_post(exit_controller_t *exit_controller, int priority) {

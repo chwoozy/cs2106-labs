@@ -5,6 +5,7 @@
  */
 #include "entry_controller.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 sem_t queue, bay;
 int atom;
@@ -39,6 +40,7 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
 
     sem_wait(&node);
     sem_wait(&bay); // Bay CS
+    printf("Exiting");
     //Done
 }
 
