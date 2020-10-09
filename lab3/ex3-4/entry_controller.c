@@ -4,6 +4,7 @@
  * Your implementation should go in this file.
  */
 #include "entry_controller.h"
+#include <stdlib.h>
 
 sem_t queue, bay;
 int atom;
@@ -51,6 +52,12 @@ void entry_controller_post( entry_controller_t *entry_controller ) {
 }
 
 void entry_controller_destroy( entry_controller_t *entry_controller ) {
+    for (int i = 0; i < ENTRY_CONTROLLER_MAX_USES; i++) {
+        node_t currSem = entry_controller->arr[i];
+        sem_destroy(&(currSem.nodeSem));
+        free(&currSem);
+    }
+    free(entry_controller);
 }
 
 void enqueue(entry_controller_t *entry_controller, node_t *node) {
