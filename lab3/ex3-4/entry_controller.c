@@ -21,6 +21,7 @@ void entry_controller_init( entry_controller_t *entry_controller, int loading_ba
     entry_controller->queue = queue;
 
     // initialise atomic
+    atom = malloc(sizeof(int));
     atom = loading_bays;
 }
 
@@ -29,6 +30,7 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
     sem_t node;
     node_t *currNode = malloc(sizeof(node_t));
     currNode->nodeSem = node;
+    printf("Atom: %d", atom);
     if (atom > 0) {
         sem_init(&node, 1, 1);
     } else {
@@ -40,7 +42,6 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
 
     sem_wait(&node);
     sem_wait(&bay); // Bay CS
-    printf("Exiting");
     //Done
 }
 
