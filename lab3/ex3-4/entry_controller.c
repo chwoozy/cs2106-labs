@@ -37,9 +37,9 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
     currNode->nodeSem = node;
     enqueue(entry_controller, currNode);
     sem_post(&queue); // End Queue CS
-    sem_wait(&bay); // Bay CS
 
     sem_wait(&(currNode->nodeSem));
+    sem_wait(&bay); // Bay CS
     //Done
 }
 
