@@ -70,4 +70,5 @@ node_t dequeue(entry_controller_t *entry_controller) {
     node_t currNode = entry_controller->arr[entry_controller->first];
     entry_controller->first = (entry_controller->first + 1) % ENTRY_CONTROLLER_MAX_USES;
     entry_controller->count--;
+    return currNode;
 }
