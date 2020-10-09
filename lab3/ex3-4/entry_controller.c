@@ -26,17 +26,15 @@ void entry_controller_init( entry_controller_t *entry_controller, int loading_ba
 void entry_controller_wait( entry_controller_t *entry_controller ) {
     sem_wait(&queue); // Queue CS
     sem_t node;
-    // if (atom > 0) {
-    //     sem_init(&node, 1, 1);
-    // } else {
-    //     sem_init(&node, 1, 0);
-    // }
-    sem_init(&node, 1, 0);
-    atom--;
-    
     node_t *currNode = malloc(sizeof(node_t));
     currNode->nodeSem = node;
-    enqueue(entry_controller, currNode);
+    if (atom > 0) {
+        sem_init(&node, 1, 1);
+    } else {
+        sem_init(&node, 1, 0);
+        enqueue(entry_controller, currNode);
+    }
+    atom--;
     sem_post(&queue); // End Queue CS
 
     sem_wait(&node);
