@@ -12,6 +12,10 @@
 #define ENTRY_CONTROLLER_MAX_USES 5000 // we impose a limit on the number of uses we can
                                        // have
 
+typedef struct node {
+    sem_t nodeSem;
+} node_t;
+
 typedef struct entry_controller {
     node_t arr[ENTRY_CONTROLLER_MAX_USES];
     int first;
@@ -21,9 +25,7 @@ typedef struct entry_controller {
     sem_t bay;
 } entry_controller_t;
 
-typedef struct node {
-    sem_t nodeSem;
-} node_t;
+
 
 
 void entry_controller_init( entry_controller_t *entry_controller, int loading_bays );
