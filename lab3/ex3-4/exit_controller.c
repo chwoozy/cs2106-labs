@@ -13,7 +13,7 @@ int atom;
 void exit_controller_init(exit_controller_t *exit_controller, int no_of_priorities) {
     // initialise queue
     sem_init(&exitSem, 1, 1);
-    sem_init(&exitSem, 1, 1);
+    sem_init(&queue, 1, 1);
     exit_controller = malloc( sizeof(exit_controller_t));
     exit_controller->first = 0;
     exit_controller->last = 0;
@@ -36,7 +36,6 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     currNode->nodeSem = node;
     enqueueX(exit_controller, currNode, priority);
     sem_post(&queue); // End Queue
-
     sem_wait(&node);
 }
 
