@@ -26,6 +26,7 @@ void exit_controller_init(exit_controller_t *exit_controller, int no_of_prioriti
 
 void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     sem_wait(&queue); // Start Queue
+    printf("Start");
     sem_t node;
     if (atom > 0) {
         sem_init(&node, 1, 1);
