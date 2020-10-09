@@ -13,8 +13,18 @@
                                        // have
 
 typedef struct entry_controller {
-    // define your variables here
+    node_t arr[ENTRY_CONTROLLER_MAX_USES];
+    int first;
+    int last;
+    int count;
+    sem_t queue;
+    sem_t bay;
 } entry_controller_t;
+
+typedef struct node {
+    sem_t nodeSem;
+} node_t;
+
 
 void entry_controller_init( entry_controller_t *entry_controller, int loading_bays );
 void entry_controller_wait( entry_controller_t *entry_controller );

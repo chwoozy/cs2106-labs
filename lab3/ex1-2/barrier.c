@@ -7,7 +7,7 @@
 
 #include "barrier.h"
 
-// Initialise barrier here
+// Initialise barrier here  
 void barrier_init ( barrier_t *barrier, int count ) {
     sem_t sem;
     sem_init(&sem, 0, 0);
@@ -17,6 +17,7 @@ void barrier_init ( barrier_t *barrier, int count ) {
 
 void barrier_wait ( barrier_t *barrier ) {
     barrier->count--;
+    //add one more sem for mutex since there may be a race condition
     if (barrier->count == 0) {
         sem_post(&(barrier->sem));
     }

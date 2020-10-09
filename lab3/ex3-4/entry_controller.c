@@ -5,15 +5,62 @@
  */
 #include "entry_controller.h"
 
+sem_t queue, bay;
+int atom;
+
 void entry_controller_init( entry_controller_t *entry_controller, int loading_bays ) {
+    // initialise queue
+    sem_init(&queue, 1, 1);
+    sem_init(&bay, 1, loading_bays);
+    entry_controller = malloc( sizeof(entry_controller_t));
+    entry_controller->first = 0;
+    entry_controller->last = 0;
+    entry_controller->count = 0;
+    entry_controller->queue = queue;
+
+    // initialise atomic
+    atom = loading_bays;
 }
 
 void entry_controller_wait( entry_controller_t *entry_controller ) {
+    sem_wait(&queue); // Queue CS
+    sem_t node;
+    if (atom > 0) {
+        sem_init(&node, 1, 1);
+    } else {
+        sem_init(&node, 1, 0);
+    }
+    atom--;
+    
+    node_t *currNode = malloc(sizeof(node_t));
+    currNode->nodeSem = node;
+    enqueue(entry_controller, currNode);
+    sem_post(&queue); // End Queue CS
+    sem_wait(&bay); // Bay CS
+
+    sem_wait(&(currNode->nodeSem));
+    //Done
 }
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
+    sem_wait(&queue); // Queue CS
+    sem_post(&bay);
+    sem_t currSem = dequeue(entry_controller).nodeSem;
+    sem_post(&currSem);
+    sem_post(&queue); // End Queue CS
 }
 
 void entry_controller_destroy( entry_controller_t *entry_controller ) {
 }
 
+void enqueue(entry_controller_t *entry_controller, node_t *node) {
+    entry_controller->arr[entry_controller->last] = *node;
+    entry_controller->last = (entry_controller->last + 1) % ENTRY_CONTROLLER_MAX_USES;
+    entry_controller->count++;
+}
+
+node_t dequeue(entry_controller_t *entry_controller) {
+    node_t currNode = entry_controller->arr[entry_controller->first];
+    entry_controller->first = (entry_controller->first + 1) % ENTRY_CONTROLLER_MAX_USES;
+    entry_controller->count--;
+}
