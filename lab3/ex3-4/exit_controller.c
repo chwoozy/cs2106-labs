@@ -59,10 +59,10 @@ void enqueueX(exit_controller_t *exit_controller, sem_t *node, int priority) {
         exit_controller->last = (exit_controller->last + 1) % MAX_PRIORITIES;
     } else 
     if (priority == 0) {
-        exit_controller->arr[exit_controller->first - 1] = node;
+        exit_controller->arr[(exit_controller->first - 1) % MAX_PRIORITIES] = node;
         exit_controller->first = (exit_controller->first - 1) % MAX_PRIORITIES;
     } else {    
-        exit_controller->arr[exit_controller->last + 1] = node;
+        exit_controller->arr[(exit_controller->last + 1) % MAX_PRIORITIES] = node;
         exit_controller->last = (exit_controller->last + 1) % MAX_PRIORITIES;
     }
     // printf("End Enqueue> First:%d Last:%d\n", exit_controller->first, exit_controller->last);
