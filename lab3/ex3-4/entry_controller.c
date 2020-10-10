@@ -33,7 +33,7 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
     sem_post(&queue); // End Queue CS
     sem_wait(&node);
     sem_wait(&bay); // Bay CS
-    sem_post(&bay);
+    // sem_post(&bay);
 }
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
