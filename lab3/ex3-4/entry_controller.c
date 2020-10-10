@@ -53,18 +53,18 @@ void entry_controller_post( entry_controller_t *entry_controller ) {
 void entry_controller_destroy( entry_controller_t *entry_controller ) {
     for (int i = 0; i < ENTRY_CONTROLLER_MAX_USES; i++) {
         sem_t currSem = entry_controller->arr[i];
-        sem_destroy(&currSem);
+        sem_destroy(currSem);
     }
 }
 
 void enqueue(entry_controller_t *entry_controller, sem_t *node) {
-    entry_controller->arr[entry_controller->last] = *node;
+    entry_controller->arr[entry_controller->last] = node;
     entry_controller->last = (entry_controller->last + 1) % ENTRY_CONTROLLER_MAX_USES;
     entry_controller->count++;
 }
 
 sem_t* dequeue(entry_controller_t *entry_controller) {
-    sem_t *currNode = &(entry_controller->arr[entry_controller->first]);
+    sem_t *currNode = entry_controller->arr[entry_controller->first];
     entry_controller->first = (entry_controller->first + 1) % ENTRY_CONTROLLER_MAX_USES;
     entry_controller->count--;
     return currNode;
