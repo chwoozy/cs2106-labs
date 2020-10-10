@@ -35,11 +35,11 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
 }
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
-    sem_post(&bay);
     sem_wait(&queue); // Queue CS
     sem_t *currSem = dequeue(entry_controller);
     sem_post(currSem);
     sem_post(&queue); // End Queue CS
+    sem_post(&bay);
 }
 
 void entry_controller_destroy( entry_controller_t *entry_controller ) {
