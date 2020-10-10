@@ -17,7 +17,6 @@ typedef struct entry_controller {
     sem_t *arr[ENTRY_CONTROLLER_MAX_USES];
     int first;
     int last;
-    int count;
     int atom;
     sem_t queue;
     sem_t bay;

@@ -8,7 +8,6 @@
 #include <stdio.h>
 
 sem_t queue, bay;
-int atom;
 
 void entry_controller_init( entry_controller_t *entry_controller, int loading_bays ) {
     // initialise queue
@@ -16,7 +15,6 @@ void entry_controller_init( entry_controller_t *entry_controller, int loading_ba
     sem_init(&bay, 1, loading_bays);
     entry_controller->first = 0;
     entry_controller->last = 0;
-    entry_controller->count = 0;
     entry_controller->queue = queue;
     entry_controller->atom = loading_bays;
 
@@ -55,17 +53,16 @@ void entry_controller_destroy( entry_controller_t *entry_controller ) {
     //     sem_t *currSem = entry_controller->arr[i];
     //     sem_destroy(currSem);
     // }
+    free(entry_controller);
 }
 
 void enqueue(entry_controller_t *entry_controller, sem_t *node) {
     entry_controller->arr[entry_controller->last] = node;
     entry_controller->last = (entry_controller->last + 1) % ENTRY_CONTROLLER_MAX_USES;
-    entry_controller->count++;
 }
 
 sem_t* dequeue(entry_controller_t *entry_controller) {
     sem_t *currNode = entry_controller->arr[entry_controller->first];
     entry_controller->first = (entry_controller->first + 1) % ENTRY_CONTROLLER_MAX_USES;
-    entry_controller->count--;
     return currNode;
 }

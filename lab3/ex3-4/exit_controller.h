@@ -12,7 +12,6 @@
 #define MAX_PRIORITIES 5000 // we set a limit on how many possible priorities we have
 
 typedef struct exit_controller {
-    // define your variables here
     sem_t *arr[MAX_PRIORITIES];
     int first;
     int last;
