@@ -31,11 +31,9 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
         enqueue(entry_controller, &node);
     }
     sem_post(&queue); // End Queue CS
-
     sem_wait(&node);
     sem_wait(&bay); // Bay CS
     sem_post(&bay);
-    //Done
 }
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
@@ -49,6 +47,7 @@ void entry_controller_post( entry_controller_t *entry_controller ) {
 }
 
 void entry_controller_destroy( entry_controller_t *entry_controller ) {
+    printf("Entry Destroy");
     // for (int i = 0; i < ENTRY_CONTROLLER_MAX_USES; i++) {
     //     sem_t *currSem = entry_controller->arr[i];
     //     sem_destroy(currSem);
