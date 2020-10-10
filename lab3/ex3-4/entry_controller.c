@@ -50,12 +50,12 @@ void entry_controller_destroy( entry_controller_t *entry_controller ) {
 }
 
 void enqueue(entry_controller_t *entry_controller, sem_t *node) {
-    entry_controller->arr[entry_controller->last] = *node;
+    entry_controller->arr[entry_controller->last] = node;
     entry_controller->last = (entry_controller->last + 1) % ENTRY_CONTROLLER_MAX_USES;
 }
 
 sem_t* dequeue(entry_controller_t *entry_controller) {
-    sem_t *currNode = &entry_controller->arr[entry_controller->first];
+    sem_t *currNode = entry_controller->arr[entry_controller->first];
     entry_controller->first = (entry_controller->first + 1) % ENTRY_CONTROLLER_MAX_USES;
     return currNode;
 }
