@@ -46,7 +46,7 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
 void entry_controller_post( entry_controller_t *entry_controller ) {
     sem_post(&bay);
     sem_wait(&queue); // Queue CS
-    sem_t currSem = dequeue(entry_controller).nodeSem;
+    sem_t currSem = dequeue(entry_controller)->nodeSem;
     sem_post(&currSem);
     sem_post(&queue); // End Queue CS
 }
@@ -55,7 +55,6 @@ void entry_controller_destroy( entry_controller_t *entry_controller ) {
     for (int i = 0; i < ENTRY_CONTROLLER_MAX_USES; i++) {
         node_t currSem = entry_controller->arr[i];
         sem_destroy(&(currSem.nodeSem));
-        free(&currSem);
     }
 }
 
@@ -65,8 +64,8 @@ void enqueue(entry_controller_t *entry_controller, node_t *node) {
     entry_controller->count++;
 }
 
-node_t dequeue(entry_controller_t *entry_controller) {
-    node_t currNode = entry_controller->arr[entry_controller->first];
+node_t* dequeue(entry_controller_t *entry_controller) {
+    node_t *currNode = &(entry_controller->arr[entry_controller->first]);
     entry_controller->first = (entry_controller->first + 1) % ENTRY_CONTROLLER_MAX_USES;
     entry_controller->count--;
     return currNode;

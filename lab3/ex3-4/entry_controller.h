@@ -34,6 +34,6 @@ void entry_controller_wait( entry_controller_t *entry_controller );
 void entry_controller_post( entry_controller_t *entry_controller );
 void entry_controller_destroy( entry_controller_t *entry_controller );
 void enqueue( entry_controller_t *entry_controller, node_t *node );
-node_t dequeue( entry_controller_t *entry_controller );
+node_t* dequeue( entry_controller_t *entry_controller );
 
 #endif // __CS2106_ENTRY_CONTROLLER_H_
