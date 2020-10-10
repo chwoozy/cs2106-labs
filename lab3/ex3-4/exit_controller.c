@@ -18,7 +18,7 @@ void exit_controller_init(exit_controller_t *exit_controller, int no_of_prioriti
 }
 
 void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
-    sem_wait(&exit_controller->queue); // Start Queue
+    sem_wait(&exit_controller->queue); // Queue CS
     sem_t *node = malloc(sizeof(sem_t));
     if (exit_controller->atom > 0) {
         sem_init(node, 1, 1);
@@ -27,7 +27,7 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
         sem_init(node, 1, 0);
         enqueueX(exit_controller, node, priority);
     } 
-    sem_post(&exit_controller->queue); // End Queue
+    sem_post(&exit_controller->queue); // Queue CS
 
     sem_wait(node);
     sem_wait(&exit_controller->exitSem);
@@ -36,10 +36,9 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
 void exit_controller_post(exit_controller_t *exit_controller, int priority) {
     
     sem_wait(&exit_controller->queue); // Queue CS
-    
     sem_t *currSem = dequeueX(exit_controller);
     sem_post(currSem);
-    sem_post(&exit_controller->queue); // End Queue CS
+    sem_post(&exit_controller->queue); // Queue CS
     sem_post(&exit_controller->exitSem);
 }
 
@@ -53,8 +52,8 @@ void exit_controller_destroy(exit_controller_t *exit_controller){
 }
 
 void enqueueX(exit_controller_t *exit_controller, sem_t *node, int priority) {
-    // printf("Start Enqueue> First:%d Last:%d\n", exit_controller->first, exit_controller->last);
     if (exit_controller->first - exit_controller->last == 0) {
+        printf("Error");
         exit_controller->arr[exit_controller->first] = node;
         exit_controller->last = (exit_controller->last + 1) % MAX_PRIORITIES;
     } else 
@@ -65,14 +64,11 @@ void enqueueX(exit_controller_t *exit_controller, sem_t *node, int priority) {
         exit_controller->arr[(exit_controller->last + 1) % MAX_PRIORITIES] = node;
         exit_controller->last = (exit_controller->last + 1) % MAX_PRIORITIES;
     }
-    // printf("End Enqueue> First:%d Last:%d\n", exit_controller->first, exit_controller->last);
     
 }
 
 sem_t* dequeueX(exit_controller_t *exit_controller) {
-    // printf("Start Dequeue> First:%d Last:%d\n", exit_controller->first, exit_controller->last);
     sem_t *currNode = exit_controller->arr[exit_controller->first];
     exit_controller->first = (exit_controller->first + 1) % MAX_PRIORITIES;
-    // printf("End Dequeue> First:%d Last:%d\n", exit_controller->first, exit_controller->last);
     return currNode;
 }
