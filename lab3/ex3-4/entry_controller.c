@@ -44,7 +44,9 @@ void entry_controller_post( entry_controller_t *entry_controller ) {
     sem_post(&bay);
     sem_wait(&queue); // Queue CS
     sem_t *currSem = dequeue(entry_controller);
-    sem_post(currSem);
+    if (sem_post(currSem) == -1) {
+        printf("Thread failed to unlock");
+    }
     sem_post(&queue); // End Queue CS
 }
 
