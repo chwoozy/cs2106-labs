@@ -22,6 +22,7 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
     sem_t *node = malloc(sizeof(sem_t));
     if (entry_controller->atom > 0) {
         sem_init(node, 1, 1);
+        enqueue(entry_controller, node);
         entry_controller->atom--;
     } else {
         sem_init(node, 1, 0);
