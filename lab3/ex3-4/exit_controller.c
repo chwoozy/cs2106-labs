@@ -54,10 +54,10 @@ void exit_controller_destroy(exit_controller_t *exit_controller){
 
 void enqueueX(exit_controller_t *exit_controller, sem_t *node, int priority) {
     if (priority == 0) {
-        exit_controller->arr[exit_controller->first - 1] = *node;
+        exit_controller->arr[exit_controller->first - 1] = node;
         exit_controller->first = (exit_controller->first - 1) % MAX_PRIORITIES;
     } else {
-        exit_controller->arr[exit_controller->last + 1] = *node;
+        exit_controller->arr[exit_controller->last + 1] = node;
         exit_controller->last = (exit_controller->last + 1) % MAX_PRIORITIES;
     }
     
