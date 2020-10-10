@@ -20,12 +20,13 @@ void exit_controller_init(exit_controller_t *exit_controller, int no_of_prioriti
 void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     sem_wait(&exit_controller->queue); // Queue CS
     sem_t *node = malloc(sizeof(sem_t));
-    if (exit_controller->atom > 0) {
-        sem_init(node, 1, 1);
-        exit_controller->atom--;
-    } else {
-        sem_init(node, 1, 0);
-    } 
+    // if (exit_controller->atom > 0) {
+    //     sem_init(node, 1, 1);
+    //     exit_controller->atom--;
+    // } else {
+    //     sem_init(node, 1, 0);
+    // } 
+    sem_init(node, 1, 0);
     enqueueX(exit_controller, node, priority);
     sem_post(&exit_controller->queue); // Queue CS
 
