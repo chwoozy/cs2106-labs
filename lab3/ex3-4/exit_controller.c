@@ -23,6 +23,7 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     sem_t *node = malloc(sizeof(sem_t));
     if (exit_controller->atom > 0) {
         sem_init(node, 1, 1);
+        enqueueX(exit_controller, node, priority);
         exit_controller->atom--;
     } else {
         sem_init(node, 1, 0);
