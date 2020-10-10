@@ -17,6 +17,7 @@ void entry_controller_init( entry_controller_t *entry_controller, int loading_ba
 }
 
 void entry_controller_wait( entry_controller_t *entry_controller ) {
+    printf("Entry Waited\n");
     sem_wait(&entry_controller->queue); // Queue CS
     sem_t *node = malloc(sizeof(sem_t));
     if (entry_controller->atom > 0) {
@@ -32,6 +33,7 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
 }
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
+    printf("Entry Posted\n");
     sem_wait(&entry_controller->queue); // Queue CS
     sem_t *currSem = dequeue(entry_controller);
     sem_post(currSem);
