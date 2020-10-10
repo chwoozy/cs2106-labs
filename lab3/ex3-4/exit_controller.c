@@ -39,9 +39,9 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
 }
 
 void exit_controller_post(exit_controller_t *exit_controller, int priority) {
-    
-    sem_wait(&exit_controller->queue); // Queue CS
     sem_post(&exit_controller->exitSem);
+    sem_wait(&exit_controller->queue); // Queue CS
+    
     sem_t *currSem = dequeueX(exit_controller);
     sem_post(currSem);
     sem_post(&exit_controller->queue); // End Queue CS
