@@ -11,25 +11,23 @@
 
 #define MAX_PRIORITIES 5000 // we set a limit on how many possible priorities we have
 
-typedef struct nodeX {
-    sem_t nodeSem;
-} nodeX_t;
 
 typedef struct exit_controller {
     // define your variables here
-    nodeX_t arr[MAX_PRIORITIES];
+    sem_t *arr[MAX_PRIORITIES];
     int first;
     int last;
-    sem_t queue;
-    sem_t exitSem;
+    int atom;
+    sem_t *queue;
+    sem_t *exitSem;
 } exit_controller_t;
 
 void exit_controller_init(exit_controller_t *exit_controller, int no_of_priorities);
 void exit_controller_wait(exit_controller_t *exit_controller, int priority);
 void exit_controller_post(exit_controller_t *exit_controller, int priority);
 void exit_controller_destroy(exit_controller_t *exit_controller);
-void enqueueX(exit_controller_t *exit_controller, nodeX_t *node, int priority);
-nodeX_t dequeueX(exit_controller_t *exit_controller);
+void enqueueX(exit_controller_t *exit_controller, sem_t *node, int priority);
+sem_t* dequeueX(exit_controller_t *exit_controller);
 
 
 
