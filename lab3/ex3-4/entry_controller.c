@@ -10,7 +10,6 @@
 sem_t queue, bay;
 
 void entry_controller_init( entry_controller_t *entry_controller, int loading_bays ) {
-    // initialise queue
     sem_init(&queue, 1, 1);
     sem_init(&bay, 1, loading_bays);
     entry_controller->first = 0;
@@ -33,16 +32,13 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
     sem_post(&queue); // End Queue CS
     sem_wait(&node);
     sem_wait(&bay); // Bay CS
-    // sem_post(&bay);
 }
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
     sem_post(&bay);
     sem_wait(&queue); // Queue CS
     sem_t *currSem = dequeue(entry_controller);
-    if (sem_post(currSem) == -1) {
-        printf("Thread failed to unlock");
-    }
+    sem_post(currSem);
     sem_post(&queue); // End Queue CS
 }
 
