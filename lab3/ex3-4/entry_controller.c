@@ -32,7 +32,6 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
 }
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
-    printf("00000000000\n");
     sem_wait(&entry_controller->queue); // Queue CS
     sem_t *currSem = dequeue(entry_controller);
     sem_post(currSem);
