@@ -24,8 +24,9 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
         entry_controller->atom--;
     } else {
         sem_init(node, 1, 0);
+        enqueue(entry_controller, node);
     }
-    enqueue(entry_controller, node);
+    
     sem_post(&entry_controller->queue); // End Queue CS
     sem_wait(node);
     sem_wait(&entry_controller->bay);
