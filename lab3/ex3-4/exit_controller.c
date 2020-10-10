@@ -37,9 +37,10 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
         enqueueX(exit_controller, currNode, priority);
     }
     
-    
     sem_post(&queue); // End Queue
     sem_wait(&node);
+    sem_wait(&exitSem);
+    sem_post(&exitSem);
 }
 
 void exit_controller_post(exit_controller_t *exit_controller, int priority) {
