@@ -9,7 +9,6 @@
 #include <stdio.h>
 
 sem_t exitSem, queue;
-int atomX;
 
 void exit_controller_init(exit_controller_t *exit_controller, int no_of_priorities) {
     // initialise queue
@@ -19,16 +18,15 @@ void exit_controller_init(exit_controller_t *exit_controller, int no_of_prioriti
     exit_controller->last = 0;
     exit_controller->queue = queue;
     exit_controller->exitSem = exitSem;
-
-    // initialise atomic
-    atomX = 1;
+    exit_controller->atom = 1;
 }
 
 void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     sem_wait(&queue); // Start Queue
     sem_t node;
-    if (atomX > 0) {
+    if (exit_controller->atom > 0) {
         sem_init(&node, 1, 1);
+        exit_controller->atom--;
     } else {
         sem_init(&node, 1, 0);
         enqueueX(exit_controller, &node, priority);
