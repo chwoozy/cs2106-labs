@@ -51,11 +51,11 @@ void exit_controller_post(exit_controller_t *exit_controller, int priority) {
 }
 
 void exit_controller_destroy(exit_controller_t *exit_controller){
-    for (int i = 0; i < MAX_PRIORITIES; i++) {
-        nodeX_t currSem = exit_controller->arr[i];
-        sem_destroy(&(currSem.nodeSem));
-        // free(&currSem);
-    }
+    // for (int i = 0; i < MAX_PRIORITIES; i++) {
+    //     nodeX_t currSem = exit_controller->arr[i];
+    //     sem_destroy(&(currSem.nodeSem));
+    //     // free(&currSem);
+    // }
     // free(exit_controller);
 }
 
