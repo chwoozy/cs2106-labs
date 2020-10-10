@@ -53,7 +53,6 @@ void exit_controller_destroy(exit_controller_t *exit_controller){
 
 void enqueueX(exit_controller_t *exit_controller, sem_t *node, int priority) {
     if (exit_controller->first - exit_controller->last == 0) {
-        printf("Error");
         exit_controller->arr[exit_controller->first] = node;
         exit_controller->last = (exit_controller->last + 1) % MAX_PRIORITIES;
     } else 

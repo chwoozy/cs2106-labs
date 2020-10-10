@@ -21,7 +21,7 @@ void entry_controller_init( entry_controller_t *entry_controller, int loading_ba
 
 void entry_controller_wait( entry_controller_t *entry_controller ) {
     sem_wait(&queue); // Queue CS
-    sem_t node;
+    sem_t node = malloc(sizeof(sem_t));
     if (entry_controller->atom > 0) {
         sem_init(&node, 1, 1);
         entry_controller->atom--;
