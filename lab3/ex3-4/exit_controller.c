@@ -56,7 +56,7 @@ void exit_controller_destroy(exit_controller_t *exit_controller){
         sem_destroy(&(currSem.nodeSem));
         free(&currSem);
     }
-    free(exit_controller);
+    // free(exit_controller);
 }
 
 void enqueueX(exit_controller_t *exit_controller, nodeX_t *node, int priority) {

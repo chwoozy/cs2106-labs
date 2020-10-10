@@ -39,12 +39,13 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
 
     sem_wait(&node);
     sem_wait(&bay); // Bay CS
+    sem_post(&bay);
     //Done
 }
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
-    sem_wait(&queue); // Queue CS
     sem_post(&bay);
+    sem_wait(&queue); // Queue CS
     sem_t currSem = dequeue(entry_controller).nodeSem;
     sem_post(&currSem);
     sem_post(&queue); // End Queue CS
@@ -56,7 +57,6 @@ void entry_controller_destroy( entry_controller_t *entry_controller ) {
         sem_destroy(&(currSem.nodeSem));
         free(&currSem);
     }
-    free(entry_controller);
 }
 
 void enqueue(entry_controller_t *entry_controller, node_t *node) {
