@@ -28,13 +28,16 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     sem_wait(&queue); // Start Queue
     sem_t node;
     nodeX_t *currNode = malloc(sizeof(nodeX_t));
-    currNode->nodeSem = node;
     if (atomX > 0) {
         sem_init(&node, 1, 1);
+        currNode->nodeSem = node;
     } else {
         sem_init(&node, 1, 0);
+        currNode->nodeSem = node;
+        enqueueX(exit_controller, currNode, priority);
     }
-    enqueueX(exit_controller, currNode, priority);
+    
+    
     sem_post(&queue); // End Queue
     sem_wait(&node);
 }
