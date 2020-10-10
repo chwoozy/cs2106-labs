@@ -21,6 +21,7 @@ typedef struct entry_controller {
     int first;
     int last;
     int count;
+    int atom;
     sem_t queue;
     sem_t bay;
 } entry_controller_t;

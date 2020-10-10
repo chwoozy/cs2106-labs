@@ -9,32 +9,31 @@
 #include <stdio.h>
 
 sem_t exitSem, queue;
-int atom;
+int atomX;
 
 void exit_controller_init(exit_controller_t *exit_controller, int no_of_priorities) {
     // initialise queue
     sem_init(&exitSem, 1, 1);
     sem_init(&queue, 1, 1);
-    exit_controller = malloc( sizeof(exit_controller_t));
     exit_controller->first = 0;
     exit_controller->last = 0;
     exit_controller->queue = queue;
     exit_controller->exitSem = exitSem;
 
     // initialise atomic
-    atom = 1;
+    atomX = 1;
 }
 
 void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     sem_wait(&queue); // Start Queue
     sem_t node;
-    if (atom > 0) {
+    nodeX_t *currNode = malloc(sizeof(nodeX_t));
+    currNode->nodeSem = node;
+    if (atomX > 0) {
         sem_init(&node, 1, 1);
     } else {
         sem_init(&node, 1, 0);
     }
-    nodeX_t *currNode = malloc(sizeof(nodeX_t));
-    currNode->nodeSem = node;
     enqueueX(exit_controller, currNode, priority);
     sem_post(&queue); // End Queue
     sem_wait(&node);
