@@ -15,6 +15,7 @@ void exit_controller_init(exit_controller_t *exit_controller, int no_of_prioriti
     exit_controller->first = 0;
     exit_controller->last = 0;
     exit_controller->atom = 1;
+    exit_controller->atom2 = 1;
 
     // for(int i = 0; i < MAX_PRIORITIES; i++) {
     //     sem_init(&exit_controller->arr[i], 1, 0);
@@ -42,6 +43,9 @@ void exit_controller_post(exit_controller_t *exit_controller, int priority) {
 
     sem_wait(&exit_controller->queue); // Queue CS
     sem_t *currSem = dequeueX(exit_controller);
+    if (exit_controller->atom2 > 0) {
+        currSem = dequeueX(exit_controller);
+    }
     sem_post(currSem);
     sem_post(&exit_controller->queue); // Queue CS
     sem_post(&exit_controller->exitSem);

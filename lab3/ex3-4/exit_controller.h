@@ -18,6 +18,7 @@ typedef struct exit_controller {
     int first;
     int last;
     int atom;
+    int atom2;
     sem_t queue;
     sem_t exitSem;
 } exit_controller_t;
