@@ -28,11 +28,8 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     sem_wait(&exit_controller->queue); // Queue CS
     sem_t* node = enqueueX(exit_controller, priority);
     if (exit_controller->atom > 0) {
-        sem_init(node, 1, 1);
         dequeueX(exit_controller);
         exit_controller->atom--;
-    } else {
-        sem_init(node, 1, 0);
     } 
     sem_post(&exit_controller->queue); // Queue CS
     sem_wait(node);
