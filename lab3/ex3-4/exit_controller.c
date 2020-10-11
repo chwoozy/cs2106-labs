@@ -24,7 +24,6 @@ void exit_controller_init(exit_controller_t *exit_controller, int no_of_prioriti
 }
 
 void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
-    printf("Exit Wait Start\n");
     sem_wait(&exit_controller->queue); // Queue CS
     sem_t* node = enqueueX(exit_controller, priority);
     if (exit_controller->atom > 0) {
@@ -34,16 +33,13 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     sem_post(&exit_controller->queue); // Queue CS
     sem_wait(node);
     sem_wait(&exit_controller->exitSem);
-    printf("Exit Wait End\n");
 }
 
 void exit_controller_post(exit_controller_t *exit_controller, int priority) {
-    printf("Exit Post Start\n");
     sem_wait(&exit_controller->queue); // Queue CS
     dequeueX(exit_controller);
     sem_post(&exit_controller->queue); // Queue CS
     sem_post(&exit_controller->exitSem);
-    printf("Exit Post End\n");
 
 }
 
