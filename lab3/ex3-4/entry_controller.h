@@ -14,11 +14,10 @@
 
 
 typedef struct entry_controller {
-    sem_t *arr[ENTRY_CONTROLLER_MAX_USES];
+    sem_t arr[ENTRY_CONTROLLER_MAX_USES];
     int first;
     int last;
-    int atom;
-    sem_t mutex;
+    int begin;
     sem_t queue;
     sem_t bay;
 } entry_controller_t;
@@ -30,7 +29,7 @@ void entry_controller_init( entry_controller_t *entry_controller, int loading_ba
 void entry_controller_wait( entry_controller_t *entry_controller );
 void entry_controller_post( entry_controller_t *entry_controller );
 void entry_controller_destroy( entry_controller_t *entry_controller );
-void enqueue( entry_controller_t *entry_controller, sem_t *node );
+sem_t* enqueue(entry_controller_t *entry_controller);
 sem_t* dequeue( entry_controller_t *entry_controller );
 
 #endif // __CS2106_ENTRY_CONTROLLER_H_

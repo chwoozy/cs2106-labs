@@ -10,26 +10,27 @@
 void entry_controller_init( entry_controller_t *entry_controller, int loading_bays ) {
     sem_init(&entry_controller->queue, 1, 1);
     sem_init(&entry_controller->bay, 1, loading_bays);
-    sem_init(&entry_controller->mutex, 1, 0);
     entry_controller->first = 0;
-    entry_controller->last = 0;
-    entry_controller->atom = loading_bays;
+    entry_controller->last = loading_bays;
+    entry_controller->begin = loading_bays;
+
+    int atom = loading_bays;
+    for (int i = 0; i < ENTRY_CONTROLLER_MAX_USES; i++) {
+        if (atom > 0) {
+            sem_init(&entry_controller->arr[i], 1, 1);
+            atom--;
+        } else {
+            sem_init(&entry_controller->arr[i], 1, 0);
+        }
+    }
 }
 
 void entry_controller_wait( entry_controller_t *entry_controller ) {
     printf("Entry Wait Start");
     sem_wait(&entry_controller->queue); // Queue CS
-    sem_t *node = malloc(sizeof(sem_t));
-    if (entry_controller->atom > 0) {
-        sem_init(node, 1, 1);
-        entry_controller->atom--;
-    } else {
-        sem_init(node, 1, 0);
-        enqueue(entry_controller, node);
-        sem_post(&entry_controller->mutex);
-    }
-    
+    sem_t *node = enqueue(entry_controller);
     sem_post(&entry_controller->queue); // End Queue CS
+
     sem_wait(node);
     sem_wait(&entry_controller->bay);
     printf("Entry Wait End");
@@ -37,10 +38,9 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
     printf("Entry Post Start");
-    sem_wait(&entry_controller->mutex);
     sem_wait(&entry_controller->queue); // Queue CS
-    sem_t *currSem = dequeue(entry_controller);
-    sem_post(currSem);
+    sem_t *node = dequeue(entry_controller);
+    sem_post(node);
     sem_post(&entry_controller->queue); // End Queue CS
     sem_post(&entry_controller->bay);
     printf("Entry Post End");
@@ -55,13 +55,14 @@ void entry_controller_destroy( entry_controller_t *entry_controller ) {
     // free(entry_controller);
 }
 
-void enqueue(entry_controller_t *entry_controller, sem_t *node) {
-    entry_controller->arr[entry_controller->last] = node;
-    entry_controller->last = (entry_controller->last + 1) % ENTRY_CONTROLLER_MAX_USES;
+sem_t* enqueue(entry_controller_t *entry_controller) {
+    sem_t* node = &entry_controller->arr[entry_controller->first];
+    entry_controller->first = (entry_controller->first + 1) % ENTRY_CONTROLLER_MAX_USES;
+    return node;
 }
 
 sem_t* dequeue(entry_controller_t *entry_controller) {
-    sem_t *currNode = entry_controller->arr[entry_controller->first];
-    entry_controller->first = (entry_controller->first + 1) % ENTRY_CONTROLLER_MAX_USES;
-    return currNode;
+    sem_t *node = &entry_controller->arr[entry_controller->last];
+    entry_controller->last = (entry_controller->last + 1) % ENTRY_CONTROLLER_MAX_USES;
+    return node;
 }
