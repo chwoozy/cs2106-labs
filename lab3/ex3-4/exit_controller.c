@@ -43,7 +43,6 @@ void exit_controller_post(exit_controller_t *exit_controller, int priority) {
     sem_post(currSem);
     sem_post(&exit_controller->queue); // Queue CS
     sem_post(&exit_controller->exitSem);
-    sem_post(&exit_controller->mutex);
 }
 
 void exit_controller_destroy(exit_controller_t *exit_controller){

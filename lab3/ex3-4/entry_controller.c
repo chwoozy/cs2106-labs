@@ -40,7 +40,6 @@ void entry_controller_post( entry_controller_t *entry_controller ) {
     sem_post(currSem);
     sem_post(&entry_controller->queue); // End Queue CS
     sem_post(&entry_controller->bay);
-    sem_post(&entry_controller->mutex);
 }
 
 void entry_controller_destroy( entry_controller_t *entry_controller ) {
