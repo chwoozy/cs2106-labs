@@ -30,7 +30,9 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
         sem_init(node, 1, 1);
         exit_controller->atom--;
     } else {
-        enqueueX(exit_controller, node, priority);
+        node = enqueueX(exit_controller, priority);
+        sem_init(node, 1, 0);
+        
     } 
     sem_post(&exit_controller->queue); // Queue CS
     sem_wait(node);
@@ -57,17 +59,20 @@ void exit_controller_destroy(exit_controller_t *exit_controller){
     // free(exit_controller);
 }
 
-void enqueueX(exit_controller_t *exit_controller, sem_t *node, int priority) {
+sem_t* enqueueX(exit_controller_t *exit_controller, int priority) {
     if (exit_controller->first - exit_controller->last == 0) {
-        exit_controller->arr[exit_controller->first] = *node;
+        sem_t* node = &exit_controller->arr[exit_controller->first];
         exit_controller->last = (exit_controller->last + 1) % MAX_PRIORITIES;
+        return node;
     } else 
     if (priority == 0) {
-        exit_controller->arr[(exit_controller->first - 1) % MAX_PRIORITIES] = *node;
+        sem_t* node = &exit_controller->arr[(exit_controller->first - 1) % MAX_PRIORITIES];
         exit_controller->first = (exit_controller->first - 1) % MAX_PRIORITIES;
+        return node;
     } else {    
-        exit_controller->arr[(exit_controller->last + 1) % MAX_PRIORITIES] = *node;
+        sem_t* node = &exit_controller->arr[(exit_controller->last + 1) % MAX_PRIORITIES];
         exit_controller->last = (exit_controller->last + 1) % MAX_PRIORITIES;
+        return node;
     }
     
 }
@@ -79,6 +84,7 @@ void dequeueX(exit_controller_t *exit_controller) {
         node = &exit_controller->arr[exit_controller->first];
         exit_controller->first = (exit_controller->first + 1) % MAX_PRIORITIES;
         sem_post(node);
+        
     }
     
 }
