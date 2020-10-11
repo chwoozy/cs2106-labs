@@ -17,6 +17,7 @@ void entry_controller_init( entry_controller_t *entry_controller, int loading_ba
 }
 
 void entry_controller_wait( entry_controller_t *entry_controller ) {
+    printf("Entry Wait Start");
     sem_wait(&entry_controller->queue); // Queue CS
     sem_t *node = malloc(sizeof(sem_t));
     if (entry_controller->atom > 0) {
@@ -31,15 +32,18 @@ void entry_controller_wait( entry_controller_t *entry_controller ) {
     sem_post(&entry_controller->queue); // End Queue CS
     sem_wait(node);
     sem_wait(&entry_controller->bay);
+    printf("Entry Wait End");
 }
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
+    printf("Entry Post Start");
     sem_wait(&entry_controller->mutex);
     sem_wait(&entry_controller->queue); // Queue CS
     sem_t *currSem = dequeue(entry_controller);
     sem_post(currSem);
     sem_post(&entry_controller->queue); // End Queue CS
     sem_post(&entry_controller->bay);
+    printf("Entry Post End");
 }
 
 void entry_controller_destroy( entry_controller_t *entry_controller ) {
