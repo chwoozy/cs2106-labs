@@ -44,12 +44,11 @@ void exit_controller_post(exit_controller_t *exit_controller, int priority) {
 }
 
 void exit_controller_destroy(exit_controller_t *exit_controller){
-    // for (int i = 0; i < MAX_PRIORITIES; i++) {
-    //     sem_t *currSem = exit_controller->arr[i];
-    //     // sem_destroy();
-    //     // free(&currSem);
-    // }
-    // free(exit_controller);
+    for (int i = 0; i < (MAX_PRIORITIES * 2); i++) {
+        sem_t currSem = exit_controller->arr[i];
+        sem_destroy(&currSem);
+    }
+    free(exit_controller);
 }
 
 sem_t* enqueueX(exit_controller_t *exit_controller, int priority) {
@@ -62,22 +61,6 @@ sem_t* enqueueX(exit_controller_t *exit_controller, int priority) {
         exit_controller->lastEnd--;
     }
     return node;
-    
-    // if (exit_controller->first - exit_controller->last == 0) {
-    //     sem_t* node = &exit_controller->arr[exit_controller->first];
-    //     exit_controller->last = (exit_controller->last + 1) % MAX_PRIORITIES;
-    //     return node;
-    // } else 
-    // if (priority == 0) {
-    //     sem_t* node = &exit_controller->arr[(exit_controller->first - 1) % MAX_PRIORITIES];
-    //     exit_controller->first = (exit_controller->first - 1) % MAX_PRIORITIES;
-    //     return node;
-    // } else {    
-    //     sem_t* node = &exit_controller->arr[(exit_controller->last + 1) % MAX_PRIORITIES];
-    //     exit_controller->last = (exit_controller->last + 1) % MAX_PRIORITIES;
-    //     return node;
-    // }
-    
 }
 
 void dequeueX(exit_controller_t *exit_controller) {
@@ -90,10 +73,4 @@ void dequeueX(exit_controller_t *exit_controller) {
         exit_controller->last--;
     }
     sem_post(node);
-    // if (exit_controller->first - exit_controller->last == 0) {
-    // } else {
-    //     node = &exit_controller->arr[exit_controller->first];
-    //     exit_controller->first = (exit_controller->first + 1) % MAX_PRIORITIES;
-    //     sem_post(node); 
-    // }  
 }
