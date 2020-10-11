@@ -27,7 +27,7 @@ void exit_controller_init(exit_controller_t *exit_controller, int no_of_prioriti
 void exit_controller_wait(exit_controller_t *exit_controller, int priority);
 void exit_controller_post(exit_controller_t *exit_controller, int priority);
 void exit_controller_destroy(exit_controller_t *exit_controller);
-sem_t* enqueueX(exit_controller_t *exit_controller, int priority);
+void enqueueX(exit_controller_t *exit_controller, sem_t *node, int priority);
 void dequeueX(exit_controller_t *exit_controller);
 
 
