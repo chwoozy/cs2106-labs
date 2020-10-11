@@ -14,11 +14,12 @@
 
 typedef struct exit_controller {
     // define your variables here
-    sem_t arr[MAX_PRIORITIES];
+    sem_t arr[MAX_PRIORITIES * 2];
     int first;
+    int firstEnd;
     int last;
+    int lastEnd;
     int atom;
-    int atom2;
     sem_t queue;
     sem_t exitSem;
 } exit_controller_t;
