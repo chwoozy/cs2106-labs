@@ -5,7 +5,7 @@
  * as the method signatures will be needed to compile with the runner.
  */
 #include "exit_controller.h"
-#include <stdlib.h>
+#include <stdlib.h> 
 #include <stdio.h>
 
 
@@ -17,22 +17,21 @@ void exit_controller_init(exit_controller_t *exit_controller, int no_of_prioriti
     exit_controller->atom = 1;
     exit_controller->atom2 = 1;
 
-    // for(int i = 0; i < MAX_PRIORITIES; i++) {
-    //     sem_init(&exit_controller->arr[i], 1, 0);
-    // }
+    for(int i = 0; i < MAX_PRIORITIES; i++) {
+        sem_init(&exit_controller->arr[i], 1, 0);
+    }
 }
 
 void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     printf("Exit Wait Start\n");
     sem_wait(&exit_controller->queue); // Queue CS
-    sem_t *node;
+    sem_t* node = enqueueX(exit_controller, priority);
     if (exit_controller->atom > 0) {
         sem_init(node, 1, 1);
+        dequeueX(exit_controller);
         exit_controller->atom--;
     } else {
-        node = enqueueX(exit_controller, priority);
-        sem_init(node, 1, 0);
-        
+        sem_init(node, 1, 0);       
     } 
     sem_post(&exit_controller->queue); // Queue CS
     sem_wait(node);
@@ -83,8 +82,6 @@ void dequeueX(exit_controller_t *exit_controller) {
     } else {
         node = &exit_controller->arr[exit_controller->first];
         exit_controller->first = (exit_controller->first + 1) % MAX_PRIORITIES;
-        sem_post(node);
-        
-    }
-    
+        sem_post(node); 
+    }  
 }
