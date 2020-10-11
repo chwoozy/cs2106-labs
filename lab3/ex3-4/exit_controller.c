@@ -16,9 +16,9 @@ void exit_controller_init(exit_controller_t *exit_controller, int no_of_prioriti
     exit_controller->last = 0;
     exit_controller->atom = 1;
 
-    for(int i = 0; i < MAX_PRIORITIES; i++) {
-        sem_init(&exit_controller->arr[i], 1, 0);
-    }
+    // for(int i = 0; i < MAX_PRIORITIES; i++) {
+    //     sem_init(&exit_controller->arr[i], 1, 0);
+    // }
 }
 
 void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
@@ -29,8 +29,8 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
         exit_controller->atom--;
     } else {
         sem_init(node, 1, 0);
-        enqueueX(exit_controller, node, priority);
     } 
+    enqueueX(exit_controller, node, priority);
     
     sem_post(&exit_controller->queue); // Queue CS
 
@@ -59,21 +59,21 @@ void exit_controller_destroy(exit_controller_t *exit_controller){
 
 void enqueueX(exit_controller_t *exit_controller, sem_t *node, int priority) {
     if (exit_controller->first - exit_controller->last == 0) {
-        exit_controller->arr[exit_controller->first] = node;
+        exit_controller->arr[exit_controller->first] = *node;
         exit_controller->last = (exit_controller->last + 1) % MAX_PRIORITIES;
     } else 
     if (priority == 0) {
-        exit_controller->arr[(exit_controller->first - 1) % MAX_PRIORITIES] = node;
+        exit_controller->arr[(exit_controller->first - 1) % MAX_PRIORITIES] = *node;
         exit_controller->first = (exit_controller->first - 1) % MAX_PRIORITIES;
     } else {    
-        exit_controller->arr[(exit_controller->last + 1) % MAX_PRIORITIES] = node;
+        exit_controller->arr[(exit_controller->last + 1) % MAX_PRIORITIES] = *node;
         exit_controller->last = (exit_controller->last + 1) % MAX_PRIORITIES;
     }
     
 }
 
 sem_t* dequeueX(exit_controller_t *exit_controller) {
-    sem_t *currNode = exit_controller->arr[exit_controller->first];
+    sem_t *currNode = &exit_controller->arr[exit_controller->first];
     exit_controller->first = (exit_controller->first + 1) % MAX_PRIORITIES;
     return currNode;
 }
