@@ -14,7 +14,7 @@
 
 typedef struct exit_controller {
     // define your variables here
-    sem_t *arr[MAX_PRIORITIES];
+    sem_t arr[MAX_PRIORITIES];
     int first;
     int last;
     int atom;
