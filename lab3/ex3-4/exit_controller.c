@@ -12,14 +12,13 @@
 void exit_controller_init(exit_controller_t *exit_controller, int no_of_priorities) {
     sem_init(&(exit_controller->exitSem), 1, 1);
     sem_init(&(exit_controller->queue), 1, 1);
-    sem_init(&(exit_controller->mutex), 1, 0);
     exit_controller->first = 0;
     exit_controller->last = 0;
     exit_controller->atom = 1;
 }
 
 void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
-    printf("Exit Wait Start");
+    printf("Exit Wait Start\n");
     sem_wait(&exit_controller->queue); // Queue CS
     sem_t *node = malloc(sizeof(sem_t));
     if (exit_controller->atom > 0) {
@@ -28,25 +27,23 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     } else {
         sem_init(node, 1, 0);
         enqueueX(exit_controller, node, priority);
-        sem_post(&exit_controller->mutex);
     } 
     
     sem_post(&exit_controller->queue); // Queue CS
 
     sem_wait(node);
     sem_wait(&exit_controller->exitSem);
-    printf("Exit Wait End");
+    printf("Exit Wait End\n");
 }
 
 void exit_controller_post(exit_controller_t *exit_controller, int priority) {
-    printf("Exit Post Start");
-    sem_wait(&exit_controller->mutex);
+    printf("Exit Post Start\n");
     sem_wait(&exit_controller->queue); // Queue CS
     sem_t *currSem = dequeueX(exit_controller);
     sem_post(currSem);
     sem_post(&exit_controller->queue); // Queue CS
     sem_post(&exit_controller->exitSem);
-    printf("Exit Post End");
+    printf("Exit Post End\n");
 }
 
 void exit_controller_destroy(exit_controller_t *exit_controller){

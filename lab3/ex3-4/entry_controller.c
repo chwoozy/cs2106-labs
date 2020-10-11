@@ -26,24 +26,24 @@ void entry_controller_init( entry_controller_t *entry_controller, int loading_ba
 }
 
 void entry_controller_wait( entry_controller_t *entry_controller ) {
-    printf("Entry Wait Start");
+    printf("Entry Wait Start\n");
     sem_wait(&entry_controller->queue); // Queue CS
     sem_t *node = enqueue(entry_controller);
     sem_post(&entry_controller->queue); // End Queue CS
 
     sem_wait(node);
     sem_wait(&entry_controller->bay);
-    printf("Entry Wait End");
+    printf("Entry Wait End\n");
 }
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
-    printf("Entry Post Start");
+    printf("Entry Post Start\n");
     sem_wait(&entry_controller->queue); // Queue CS
     sem_t *node = dequeue(entry_controller);
     sem_post(node);
     sem_post(&entry_controller->queue); // End Queue CS
     sem_post(&entry_controller->bay);
-    printf("Entry Post End");
+    printf("Entry Post End\n");
 }
 
 void entry_controller_destroy( entry_controller_t *entry_controller ) {
