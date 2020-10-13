@@ -25,9 +25,10 @@ void barrier_wait ( barrier_t *barrier ) {
     if (barrier->count == 0) {
         sem_post(&(barrier->sem));
     }
+    sem_post(&(barrier->mutex));
     sem_wait(&(barrier->sem));
     sem_post(&(barrier->sem));
-    sem_post(&(barrier->mutex));
+    
 }
 
 // Perform cleanup here if you need to
