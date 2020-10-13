@@ -11,6 +11,7 @@
 typedef struct barrier {
   int count;
   sem_t sem;
+  sem_t mutex;
   // add additional fields here
 } barrier_t;
 
