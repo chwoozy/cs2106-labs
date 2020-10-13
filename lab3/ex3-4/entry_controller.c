@@ -26,20 +26,24 @@ void entry_controller_init( entry_controller_t *entry_controller, int loading_ba
 }
 
 void entry_controller_wait( entry_controller_t *entry_controller ) {
+    printf(">>Start<< Entry Wait\n");
     sem_wait(&entry_controller->queue); // Queue CS
     sem_t *node = enqueue(entry_controller);
     sem_post(&entry_controller->queue); // End Queue CS
 
     sem_wait(node);
     sem_wait(&entry_controller->bay);
+    printf(">>End<< Entry Wait\n");
 }
 
 void entry_controller_post( entry_controller_t *entry_controller ) {
+    printf(">>Start<< Entry Post\n");
     sem_wait(&entry_controller->queue); // Queue CS
     sem_t *node = dequeue(entry_controller);
     sem_post(node);
     sem_post(&entry_controller->queue); // End Queue CS
     sem_post(&entry_controller->bay);
+    printf(">>End<< Entry Post\n");
 }
 
 void entry_controller_destroy( entry_controller_t *entry_controller ) {
@@ -47,7 +51,6 @@ void entry_controller_destroy( entry_controller_t *entry_controller ) {
     //     sem_t currSem = entry_controller->arr[i];
     //     sem_destroy(&currSem);
     // }
-    // free(entry_controller);
 }
 
 sem_t* enqueue(entry_controller_t *entry_controller) {
