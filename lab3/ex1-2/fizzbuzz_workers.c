@@ -103,5 +103,4 @@ void fizzbuzz_destroy() {
     sem_destroy(&fizz_sem);
     sem_destroy(&buzz_sem);
     sem_destroy(&fizzbuzz_sem);
-    
 }
