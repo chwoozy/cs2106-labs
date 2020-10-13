@@ -43,11 +43,11 @@ void entry_controller_post( entry_controller_t *entry_controller ) {
 }
 
 void entry_controller_destroy( entry_controller_t *entry_controller ) {
-    for (int i = 0; i < ENTRY_CONTROLLER_MAX_USES; i++) {
-        sem_t currSem = entry_controller->arr[i];
-        sem_destroy(&currSem);
-    }
-    free(entry_controller);
+    // for (int i = 0; i < ENTRY_CONTROLLER_MAX_USES; i++) {
+    //     sem_t currSem = entry_controller->arr[i];
+    //     sem_destroy(&currSem);
+    // }
+    // free(entry_controller);
 }
 
 sem_t* enqueue(entry_controller_t *entry_controller) {

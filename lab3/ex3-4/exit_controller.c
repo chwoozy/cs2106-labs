@@ -44,11 +44,11 @@ void exit_controller_post(exit_controller_t *exit_controller, int priority) {
 }
 
 void exit_controller_destroy(exit_controller_t *exit_controller){
-    for (int i = 0; i < (MAX_PRIORITIES * 2); i++) {
-        sem_t currSem = exit_controller->arr[i];
-        sem_destroy(&currSem);
-    }
-    free(exit_controller);
+    // for (int i = 0; i < (MAX_PRIORITIES * 2); i++) {
+    //     sem_t currSem = exit_controller->arr[i];
+    //     sem_destroy(&currSem);
+    // }
+    // free(exit_controller);
 }
 
 sem_t* enqueueX(exit_controller_t *exit_controller, int priority) {
