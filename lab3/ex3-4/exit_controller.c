@@ -12,7 +12,6 @@
 void exit_controller_init(exit_controller_t *exit_controller, int no_of_priorities) {
     sem_init(&(exit_controller->exitSem), 1, 1);
     sem_init(&(exit_controller->queue), 1, 1);
-    sem_init(&exit_controller->queueMutex, 1, 1);
     exit_controller->first = 0;
     exit_controller->firstEnd = 0;
     exit_controller->last = 0;
@@ -26,7 +25,6 @@ void exit_controller_init(exit_controller_t *exit_controller, int no_of_prioriti
 }
 
 void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
-    printf(">>Start<< Exit Wait\n");
     sem_wait(&exit_controller->queue); // Queue CS
     sem_t* node = enqueueX(exit_controller, priority);
     if (exit_controller->atom > 0) {
@@ -36,16 +34,13 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
     sem_post(&exit_controller->queue); // Queue CS
     sem_wait(node);
     sem_wait(&exit_controller->exitSem);
-    printf(">>End<< Exit Wait\n");
 }
 
 void exit_controller_post(exit_controller_t *exit_controller, int priority) {
-    printf(">>Start<< Exit Post\n");
     sem_wait(&exit_controller->queue); // Queue CS
     dequeueX(exit_controller);
     sem_post(&exit_controller->queue); // Queue CS
     sem_post(&exit_controller->exitSem);
-    printf(">>End<< Exit Post\n");
 }
 
 void exit_controller_destroy(exit_controller_t *exit_controller){
@@ -56,7 +51,6 @@ void exit_controller_destroy(exit_controller_t *exit_controller){
 }
 
 sem_t* enqueueX(exit_controller_t *exit_controller, int priority) {
-    sem_wait(&exit_controller->queueMutex);
     sem_t* node;
     if (priority == 0) {
         node = &exit_controller->arrH[exit_controller->firstEnd];
@@ -66,11 +60,9 @@ sem_t* enqueueX(exit_controller_t *exit_controller, int priority) {
         exit_controller->lastEnd++;
     }
     return node;
-    sem_post(&exit_controller->queueMutex);
 }
 
 void dequeueX(exit_controller_t *exit_controller) {
-    sem_wait(&exit_controller->queueMutex);
     sem_t *node;
     if(exit_controller->firstEnd - exit_controller->first != 0) {
         node = &exit_controller->arrH[exit_controller->first];
@@ -80,5 +72,4 @@ void dequeueX(exit_controller_t *exit_controller) {
         exit_controller->last++;
     }
     sem_post(node);
-    sem_post(&exit_controller->queueMutex);
 }

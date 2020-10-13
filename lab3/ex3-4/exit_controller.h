@@ -23,7 +23,6 @@ typedef struct exit_controller {
     int atom;
     sem_t queue;
     sem_t exitSem;
-    sem_t queueMutex;
 } exit_controller_t;
 
 void exit_controller_init(exit_controller_t *exit_controller, int no_of_priorities);
