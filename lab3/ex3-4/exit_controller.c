@@ -32,7 +32,7 @@ void exit_controller_wait(exit_controller_t *exit_controller, int priority) {
         exit_controller->atom--;
     } 
     sem_post(&exit_controller->queue); // Queue CS
-    sem_wait(node);
+    sem_trywait(node);
     sem_wait(&exit_controller->exitSem);
 }
 
@@ -44,10 +44,10 @@ void exit_controller_post(exit_controller_t *exit_controller, int priority) {
 }
 
 void exit_controller_destroy(exit_controller_t *exit_controller){
-    // for (int i = 0; i < (MAX_PRIORITIES * 2); i++) {
-    //     sem_t currSem = exit_controller->arr[i];
-    //     sem_destroy(&currSem);
-    // }
+    for (int i = 0; i < (MAX_PRIORITIES * 2); i++) {
+        sem_destroy(&exit_controller->arrH[i]);
+        sem_destroy(&exit_controller->arrL[i]);
+    }
 }
 
 sem_t* enqueueX(exit_controller_t *exit_controller, int priority) {
