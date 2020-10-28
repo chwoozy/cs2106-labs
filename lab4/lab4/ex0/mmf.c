@@ -16,10 +16,9 @@ void *mmf_create_or_open(const char *name, size_t sz) {
     /* TODO */
     int fd;
     char *ptr = NULL;
-    fd = open(name, O_WRONLY | O_APPEND | O_CREAT, 0644);
+    fd = open(name, O_RDWR | O_CREAT, 0644);
     if (fd > 0) {
-        int ft = ftruncate(fd, sz);
-        if (ft != -1) {
+        if (ftruncate(fd, sz) != -1) {
             ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, fd, 0 );
             if (ptr != MAP_FAILED) {
                 return ptr;
