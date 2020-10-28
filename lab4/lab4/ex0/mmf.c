@@ -8,17 +8,19 @@
 #include "mmf.h"
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <stdio.h>
 #include <unistd.h>
 
 
 void *mmf_create_or_open(const char *name, size_t sz) {
     /* TODO */
     int fd;
+    char *ptr = NULL;
     fd = open(name, O_WRONLY | O_APPEND | O_CREAT, 0644);
     if (fd > 0) {
         int ft = ftruncate(fd, sz);
         if (ft != -1) {
-            int *ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0 );
+            ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0 );
             if (ptr != MAP_FAILED) {
                 return ptr;
             } else {
@@ -30,6 +32,7 @@ void *mmf_create_or_open(const char *name, size_t sz) {
     } else {
         perror("Failed to create file");
     }
+    return ptr;
 }
 
 void mmf_close(void *ptr, size_t sz) {
