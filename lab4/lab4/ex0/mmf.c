@@ -8,6 +8,8 @@
 #include "mmf.h"
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <unistd.h>
+
 
 void *mmf_create_or_open(const char *name, size_t sz) {
     /* TODO */
@@ -17,7 +19,9 @@ void *mmf_create_or_open(const char *name, size_t sz) {
         int ft = ftruncate(fd, sz);
         if (ft != -1) {
             int *ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0 );
-            if (ptr != 0) {
+            if (ptr != MAP_FAILED) {
+                return ptr;
+            } else {
                 perror("Failed to map memory");
             }
         } else {
