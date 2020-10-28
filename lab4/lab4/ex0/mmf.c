@@ -20,7 +20,7 @@ void *mmf_create_or_open(const char *name, size_t sz) {
     if (fd > 0) {
         int ft = ftruncate(fd, sz);
         if (ft != -1) {
-            ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, 0, 0 );
+            ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, fd, 0 );
             if (ptr != MAP_FAILED) {
                 return ptr;
             } else {
