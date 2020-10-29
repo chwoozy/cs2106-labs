@@ -22,7 +22,7 @@ void *mmf_create_or_open(const char *name, size_t sz) {
         int ft = ftruncate(fd, sz);
         if (ft == 0) {
             printf("Past truncate\n");
-            ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, fd, 0 );
+            ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0 );
             if (ptr == MAP_FAILED) {
                 perror("Failed to map memory");
             } else {
