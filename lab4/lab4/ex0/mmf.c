@@ -15,11 +15,12 @@
 void *mmf_create_or_open(const char *name, size_t sz) {
     /* TODO */
     int fd;
-    char *ptr = NULL;
+    void *ptr = NULL;
     fd = open(name, O_RDWR | O_CREAT, 0644);
     if (fd > 0) {
         printf("Past fd\n");
-        if (ftruncate(fd, sz) != -1) {
+        int ft = ftruncate(fd, sz);
+        if (ft == 0) {
             printf("Past truncate\n");
             ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, fd, 0 );
             if (ptr == MAP_FAILED) {
