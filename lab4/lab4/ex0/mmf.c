@@ -18,15 +18,11 @@ void *mmf_create_or_open(const char *name, size_t sz) {
     void *ptr = NULL;
     fd = open(name, O_RDWR | O_CREAT, 0644);
     if (fd > 0) {
-        printf("Past fd\n");
-        int ft = ftruncate(fd, sz);
-        if (ft == 0) {
-            printf("Past truncate\n");
+        if (ftruncate(fd, sz) == 0) {
             ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0 );
             if (ptr == MAP_FAILED) {
                 perror("Failed to map memory");
             } else {
-                printf("Past fd\n");
                 return ptr;
             }
         } else {
