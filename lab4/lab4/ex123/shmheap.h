@@ -21,6 +21,8 @@ requirements in the lab document.  If you declare additional names (helper struc
 typedef struct {
     size_t size;
     size_t start;
+    size_t objects[100];
+    int count;
 } shmheap_info;
 
 typedef struct {
@@ -28,7 +30,7 @@ typedef struct {
 } shmheap_memory_handle;
 
 typedef struct {
-    void* ptr;
+    size_t start;
 } shmheap_object_handle;
 
 

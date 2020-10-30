@@ -26,7 +26,8 @@ shmheap_memory_handle shmheap_create(const char *name, size_t len) {
             shmheap_memory_handle mem;
             void* addr = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
             shmheap_info* info = addr;
-            info->start = sizeof(shmheap_info);
+            info->count = 0;
+            info->objects[0] = sizeof(shmheap_info);
             info->size = len;
             mem.addr = addr;
             if (addr == MAP_FAILED) {
@@ -61,7 +62,7 @@ shmheap_memory_handle shmheap_connect(const char *name) {
 void shmheap_disconnect(shmheap_memory_handle mem) {
     /* TODO */
     shmheap_info *info = mem.addr;
-    int status = munmap(mem.addr, (*info).size);
+    int status = munmap(mem.addr, info->size);
     if (status == -1) {
         perror("Error in disconnecting");
     }
@@ -70,7 +71,7 @@ void shmheap_disconnect(shmheap_memory_handle mem) {
 void shmheap_destroy(const char *name, shmheap_memory_handle mem) {
     /* TODO */
     shmheap_info *info = mem.addr;
-    int status = munmap(mem.addr, (*info).size);
+    int status = munmap(mem.addr, info->size);
     if (status == -1) {
         perror("Error in disconnecting");
     } else {
@@ -84,7 +85,9 @@ void *shmheap_underlying(shmheap_memory_handle mem) {
 
 void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
     /* TODO */
-    // mem.ptr += sz;
+    shmheap_info *info = mem.addr;
+    info->count++;
+    info->objects[info->count] = sz + info->objects[info->count - 1];
 }
 
 void shmheap_free(shmheap_memory_handle mem, void *ptr) {
@@ -93,13 +96,13 @@ void shmheap_free(shmheap_memory_handle mem, void *ptr) {
 
 shmheap_object_handle shmheap_ptr_to_handle(shmheap_memory_handle mem, void *ptr) {
     /* TODO */
-    size_t sz = sizeof(ptr);
     shmheap_object_handle obj;
-    obj.ptr = ptr;
+    shmheap_info *info = mem.addr;
+    obj.start = info->objects[0];
     return obj;
 }
 
 void *shmheap_handle_to_ptr(shmheap_memory_handle mem, shmheap_object_handle hdl) {
     /* TODO */
-    return hdl.ptr;
+    return mem.addr + hdl.start;
 }
