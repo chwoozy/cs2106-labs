@@ -24,11 +24,13 @@ shmheap_memory_handle shmheap_create(const char *name, size_t len) {
             perror("Error in truncating file");
         } else {
             shmheap_memory_handle mem;
-            void* val = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-            mem.size = len;
-            mem.ptr = val;
-            mem.addr = val;
-            if (mem.ptr == MAP_FAILED) {
+            void* addr = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+            shmheap_info* info = addr;
+            info[0].start = sizeof(shmheap_info);
+            info[0].size = len;
+            mem.addr = addr;
+            mem.info = info;
+            if (addr == MAP_FAILED) {
                 perror("Error in mapping memory");
             } else {
                 return mem;
@@ -39,18 +41,18 @@ shmheap_memory_handle shmheap_create(const char *name, size_t len) {
 
 shmheap_memory_handle shmheap_connect(const char *name) {
     /* TODO */
-    struct stat shm_info;
+    struct stat s;
     int fd = shm_open(name, O_RDWR, 0644);
     if (fd == -1) {
         perror("Error in opening shared memory");
     } else {
-        fstat(fd, &shm_info);
+        fstat(fd, &s);
         shmheap_memory_handle mem;
-        void* val = mmap(NULL, shm_info.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-        mem.size = shm_info.st_size;
-        mem.ptr = val;
-        mem.addr = val;
-        if (mem.ptr == MAP_FAILED) {
+        void* addr = mmap(NULL, s.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        shmheap_info* info = addr;
+        mem.addr = addr;
+        mem.info = info;
+        if (addr == MAP_FAILED) {
             perror("Error in mapping memory");
         } else {
             return mem;
@@ -61,7 +63,7 @@ shmheap_memory_handle shmheap_connect(const char *name) {
 
 void shmheap_disconnect(shmheap_memory_handle mem) {
     /* TODO */
-    int status = munmap(mem.ptr, mem.size);
+    int status = munmap(mem.addr, mem.info->size);
     if (status == -1) {
         perror("Error in disconnecting");
     }
@@ -69,7 +71,7 @@ void shmheap_disconnect(shmheap_memory_handle mem) {
 
 void shmheap_destroy(const char *name, shmheap_memory_handle mem) {
     /* TODO */
-    int status = munmap(mem.ptr, mem.size);
+    int status = munmap(mem.addr, mem.info->size);
     if (status == -1) {
         perror("Error in disconnecting");
     } else {
@@ -83,7 +85,7 @@ void *shmheap_underlying(shmheap_memory_handle mem) {
 
 void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
     /* TODO */
-    mem.ptr += sz;
+    // mem.ptr += sz;
 }
 
 void shmheap_free(shmheap_memory_handle mem, void *ptr) {
@@ -92,6 +94,7 @@ void shmheap_free(shmheap_memory_handle mem, void *ptr) {
 
 shmheap_object_handle shmheap_ptr_to_handle(shmheap_memory_handle mem, void *ptr) {
     /* TODO */
+    size_t sz = sizeof(ptr);
     shmheap_object_handle obj;
     obj.ptr = ptr;
     return obj;
