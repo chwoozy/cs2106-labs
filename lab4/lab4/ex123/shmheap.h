@@ -20,12 +20,11 @@ requirements in the lab document.  If you declare additional names (helper struc
 
 typedef struct {
     size_t size;
-    off_t start;
+    size_t start;
 } shmheap_info;
 
 typedef struct {
     void* addr;
-    shmheap_info* info;
 } shmheap_memory_handle;
 
 typedef struct {
