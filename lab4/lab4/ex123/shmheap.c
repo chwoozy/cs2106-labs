@@ -88,6 +88,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
     shmheap_info *info = mem.addr;
     info->count++;
     info->objects[info->count] = sz + info->objects[info->count - 1];
+    return mem.addr + info->objects[info->count - 1];
 }
 
 void shmheap_free(shmheap_memory_handle mem, void *ptr) {
