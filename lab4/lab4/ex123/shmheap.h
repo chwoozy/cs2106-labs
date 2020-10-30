@@ -20,7 +20,8 @@ requirements in the lab document.  If you declare additional names (helper struc
 
 typedef struct {
     size_t size;
-    size_t objects[100];
+    // size_t objects[10];
+    size_t start;
     int count;
 } shmheap_info;
 

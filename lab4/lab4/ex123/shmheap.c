@@ -27,7 +27,8 @@ shmheap_memory_handle shmheap_create(const char *name, size_t len) {
             void* addr = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
             shmheap_info* info = addr;
             info->count = 0;
-            info->objects[0] = sizeof(shmheap_info);
+            // info->objects[0] = sizeof(shmheap_info);
+            info->start = sizeof(shmheap_info);
             info->size = len;
             mem.addr = addr;
             if (addr == MAP_FAILED) {
@@ -87,8 +88,9 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
     /* TODO */
     shmheap_info *info = mem.addr;
     info->count++;
-    info->objects[info->count] = sz + info->objects[info->count - 1];
-    return mem.addr + info->objects[info->count - 1];
+    // info->objects[info->count] = sz + info->objects[info->count - 1];
+    // return mem.addr + info->objects[info->count - 1];
+    return mem.addr + info->start;
 }
 
 void shmheap_free(shmheap_memory_handle mem, void *ptr) {
@@ -106,5 +108,5 @@ shmheap_object_handle shmheap_ptr_to_handle(shmheap_memory_handle mem, void *ptr
 void *shmheap_handle_to_ptr(shmheap_memory_handle mem, shmheap_object_handle hdl) {
     /* TODO */
     shmheap_info *info = mem.addr;
-    return mem.addr + info->objects[0];
+    return mem.addr + info->start;
 }
