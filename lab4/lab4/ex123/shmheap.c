@@ -10,6 +10,8 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
 
 
 shmheap_memory_handle shmheap_create(const char *name, size_t len) {
