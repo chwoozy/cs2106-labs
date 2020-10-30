@@ -99,11 +99,12 @@ shmheap_object_handle shmheap_ptr_to_handle(shmheap_memory_handle mem, void *ptr
     /* TODO */
     shmheap_object_handle obj;
     shmheap_info *info = mem.addr;
-    obj.start = info->objects[0];
+    obj.ptr = ptr;
     return obj;
 }
 
 void *shmheap_handle_to_ptr(shmheap_memory_handle mem, shmheap_object_handle hdl) {
     /* TODO */
-    return mem.addr + hdl.start;
+    shmheap_info *info = mem.addr;
+    return mem.addr + info->objects[0];
 }

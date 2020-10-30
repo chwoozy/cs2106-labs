@@ -29,7 +29,7 @@ typedef struct {
 } shmheap_memory_handle;
 
 typedef struct {
-    size_t start;
+    void* ptr;
 } shmheap_object_handle;
 
 
