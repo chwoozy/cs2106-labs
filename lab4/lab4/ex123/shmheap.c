@@ -110,7 +110,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
         //root->next placeholder
 
         // update next free node
-        shmheap_node *node = root + root->next;
+        shmheap_node *node = allocated + root->next;
         node->curr = '0';
         node->size = NODE;
         node->prev = sz + ROOT;
@@ -119,7 +119,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
         allocated += ROOT;
         align += ROOT;
     } else {
-        if (root->curr == '0' && root->next >= sz) { // free and unused
+        if (root->curr == '0' && root->next >= (int) sz) { // free and unused
                 int freespace = root->next - ROOT - sz;
                 allocated += ROOT;
                 align += ROOT;
@@ -179,7 +179,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
         diff = diff - align;
         allocated += diff;
     }
-    
+
     return allocated; //may break if cant find free space, assume always got enough space
 }
 
