@@ -6,6 +6,7 @@
 *************************************/
 
 #include <stddef.h>
+#include <semaphore.h>
 
 /*
 You should modify these structs to suit your implementation,
@@ -27,11 +28,11 @@ requirements in the lab document.  If you declare additional names (helper struc
 // } shmheap_root;
 
 typedef struct {
-    int size; // size of struct
     int count;
     char curr; //49 for allocate, 48 for free
     int next; // bytes to next process
-} shmheap_root; //12 bytes
+    sem_t mutex;
+} shmheap_root; //48 bytes
 
 typedef struct {
     unsigned short size; // size of struct

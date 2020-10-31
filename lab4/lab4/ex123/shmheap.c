@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-#define ROOT 16
+#define ROOT 48
 #define NODE 8
 
 shmheap_memory_handle shmheap_create(const char *name, size_t len) {
@@ -34,7 +34,7 @@ shmheap_memory_handle shmheap_create(const char *name, size_t len) {
 
             // root init
             shmheap_root *root = addr;
-            root->size = ROOT;
+            sem_init(&root->mutex, 1, 1);
             root->count = 1;
             root->curr = '0';
             root->next = len;
@@ -80,6 +80,8 @@ void shmheap_disconnect(shmheap_memory_handle mem) {
 void shmheap_destroy(const char *name, shmheap_memory_handle mem) {
     /* TODO */
     // shmheap_info *info = mem.addr;
+    shmheap_root *root = mem.addr;
+    sem_destroy(&root->mutex);
     int status = munmap(mem.addr, mem.mmsize);
     if (status == -1) {
         perror("Error in disconnecting");
@@ -90,6 +92,7 @@ void shmheap_destroy(const char *name, shmheap_memory_handle mem) {
 
 void *shmheap_underlying(shmheap_memory_handle mem) {
     /* TODO */
+    return mem.addr;
 }
 
 void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
@@ -99,8 +102,8 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
     sz = (sz + 7) & (-8);
 
     shmheap_root *root = mem.addr;
+    sem_wait(&root->mutex);
     void* allocated = mem.addr;
-    int align = 0;
     if (root->count == 1) {
         int freespace = root->next - sz - ROOT;
         // update root
@@ -118,12 +121,10 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
         root->count++;
 
         allocated += ROOT;
-        align += ROOT;
     } else {
         if (root->curr == '0' && root->next >= (int) sz) { // free and unused
                 int freespace = root->next - ROOT - sz;
                 allocated += ROOT;
-                align += ROOT;
                 root->curr = '1';
             if (freespace > 8) { // perfect fit or have more space but not enough for bk
                 root->next = sz + ROOT;
@@ -144,14 +145,12 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
             }
         } else {
             allocated += root->next;
-            align += root->next;
             for (int i = 1; i < root->count; i++) {
                 
                 shmheap_node *node = allocated;
                 if (node->curr == '0' && node->next >= sz) {
                     int freespace = node->next - NODE - sz;
                     allocated += NODE;
-                    align += NODE;
                     node->curr = '1';
                     if (freespace > 8)  {
                         node->next = sz + NODE;
@@ -174,14 +173,13 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
                     break;
                 } else {
                     allocated += node->next; //may break if cant find free space, assume always got enough space
-                    align += node->next;
                 }
             }
         }
         
 
     }
-
+    sem_post(&root->mutex);
     return allocated; //may break if cant find free space, assume always got enough space
 }
 
@@ -189,8 +187,8 @@ void shmheap_free(shmheap_memory_handle mem, void *ptr) {
     /* TODO */
     void* curr = mem.addr;
     shmheap_root *root = mem.addr;
-
-    if (curr + root->size == ptr) {
+    sem_wait(&root->mutex);
+    if (curr + ROOT == ptr) {
         shmheap_node *next = curr + root->next;
         root->curr = '0';
         if (next->curr == '0') {
@@ -238,7 +236,7 @@ void shmheap_free(shmheap_memory_handle mem, void *ptr) {
             }
         }
     }
-
+    sem_post(&root->mutex);
     //does not handle if cant find ptr (assume that ptr is valid)
     
 }
