@@ -96,10 +96,11 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
     /* TODO */
     
     // round to 8 bytes
-    sz = (sz + 7) & (-8);
+    // sz = (sz + 7) & (-8);
 
     shmheap_root *root = mem.addr;
     void* allocated = mem.addr;
+    int align = 0;
     if (root->count == 1) {
         int freespace = root->next - sz - ROOT;
         // update root
@@ -116,10 +117,12 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
         node->next = freespace;
 
         allocated += ROOT;
+        align += ROOT;
     } else {
         if (root->curr == '0' && root->next >= sz) { // free and unused
                 int freespace = root->next - ROOT - sz;
                 allocated += ROOT;
+                align += ROOT;
                 root->curr = '1';
             if (freespace > 8) { // perfect fit or have more space but not enough for bk
                 root->next = sz + ROOT;
@@ -137,11 +140,13 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
             }
         } else {
             allocated += root->next;
+            align += root->next;
             for (int i = 1; i < root->count; i++) {
                 shmheap_node *node = allocated;
                 if (node->curr == '0' && node->next >= sz) {
                     int freespace = node->next - NODE - sz;
                     allocated += NODE;
+                    align += NODE;
                     node->curr = '1';
                     if (freespace > 8)  {
                         node->next = sz + NODE;
@@ -162,12 +167,19 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
 
                 } else {
                     allocated += node->next; //may break if cant find free space, assume always got enough space
+                    align += node->next;
                 }
             }
         }
         
 
     }
+    if (align % 8 != 0) {
+        int diff = (align + 7) & (-8);
+        diff = diff - align;
+        allocated += diff;
+    }
+    
     return allocated; //may break if cant find free space, assume always got enough space
 }
 
