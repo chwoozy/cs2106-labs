@@ -107,6 +107,13 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
     if (root->count == 1) {
         int freespace = root->next - sz - ROOT;
         // update root
+        if (root->next < (int) sz) {
+            if (mremap(mem.addr, mem.mmsize, mem.mmsize * 2) == MAP_FAILED) {
+                perror("Not handling case where there is not enough space at current location");
+            }
+            // Attempt to increase space, but does not handle if there is not enough space
+            // to expand at the current location.
+        }
         root->curr = '1'; // assume that can fit into first space
         root->next = ROOT + sz;
         //root->next placeholder
@@ -173,6 +180,15 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
                     break;
                 } else {
                     allocated += node->next; //may break if cant find free space, assume always got enough space
+                    if (i == (root->count - 1)) { 
+                        if (mremap(mem.addr, mem.mmsize, mem.mmsize * 2) == MAP_FAILED) {
+                            perror("Not handling case where there is not enough space at current location");
+                        } else {
+                            root->count++;
+                        }
+                        // Attempt to increase space, but does not handle if there is not enough space
+                        // to expand at the current location.
+                    }
                 }
             }
         }
