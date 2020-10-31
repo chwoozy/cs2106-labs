@@ -104,7 +104,6 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
     if (root->count == 1) {
         int freespace = root->next - sz - ROOT;
         // update root
-        root->count++;
         root->curr = '1'; // assume that can fit into first space
         root->next = ROOT + sz;
         //root->next placeholder
@@ -116,6 +115,8 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
         node->prev = sz + ROOT;
         node->next = freespace;
 
+        root->count++;
+
         allocated += ROOT;
         align += ROOT;
     } else {
@@ -126,9 +127,6 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
                 root->curr = '1';
             if (freespace > 8) { // perfect fit or have more space but not enough for bk
                 root->next = sz + ROOT;
-                
-                // add count
-                root->count++;
 
                 // update node
                 shmheap_node *node = allocated + sz;
@@ -137,8 +135,11 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
                 node->prev = sz + ROOT;
                 node->next = freespace;
 
+                 // add count
+                root->count++;
+
                 // update next
-                shmheap_node *next = node + node->next;
+                shmheap_node *next = allocated + sz + node->next;
                 next->prev = node->next;
             }
         } else {
@@ -155,9 +156,6 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
                     if (freespace > 8)  {
                         node->next = sz + NODE;
 
-                        // add count
-                        root->count++;
-
                         //update next node
                         shmheap_node *nextnode = allocated + sz;
                         nextnode->curr = '0';
@@ -170,6 +168,8 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
                             shmheap_node *next = nextnode + nextnode->next;
                             next->prev = nextnode->next;
                         }
+                        // add count
+                        root->count++;
                     }
                     break;
                 } else {
