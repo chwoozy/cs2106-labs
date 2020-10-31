@@ -96,7 +96,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
     /* TODO */
     
     // round to 8 bytes
-    // sz = (sz + 7) & (-8);
+    sz = (sz + 7) & (-8);
 
     shmheap_root *root = mem.addr;
     void* allocated = mem.addr;
@@ -127,6 +127,9 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
             if (freespace > 8) { // perfect fit or have more space but not enough for bk
                 root->next = sz + ROOT;
                 
+                // add count
+                root->count++;
+
                 // update node
                 shmheap_node *node = allocated + sz;
                 node->curr = '0';
@@ -142,6 +145,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
             allocated += root->next;
             align += root->next;
             for (int i = 1; i < root->count; i++) {
+                
                 shmheap_node *node = allocated;
                 if (node->curr == '0' && node->next >= sz) {
                     int freespace = node->next - NODE - sz;
@@ -150,6 +154,9 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
                     node->curr = '1';
                     if (freespace > 8)  {
                         node->next = sz + NODE;
+
+                        // add count
+                        root->count++;
 
                         //update next node
                         shmheap_node *nextnode = allocated + sz;
@@ -164,7 +171,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
                             next->prev = nextnode->next;
                         }
                     }
-
+                    break;
                 } else {
                     allocated += node->next; //may break if cant find free space, assume always got enough space
                     align += node->next;
@@ -173,11 +180,6 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
         }
         
 
-    }
-    if (align % 8 != 0) {
-        int diff = (align + 7) & (-8);
-        diff = diff - align;
-        allocated += diff;
     }
 
     return allocated; //may break if cant find free space, assume always got enough space
