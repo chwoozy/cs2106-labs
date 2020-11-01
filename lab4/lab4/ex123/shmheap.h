@@ -32,7 +32,7 @@ typedef struct {
     char curr; //49 for allocate, 48 for free
     int next; // bytes to next process
     sem_t mutex;
-    int size;
+    int size; // ex4 -> check size
 } shmheap_root; //48 bytes
 
 typedef struct {

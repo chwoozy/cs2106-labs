@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-#define ROOT 48
+#define ROOT 56
 #define NODE 8
 
 static char shm_name_store[20]="/shmheap";
@@ -102,7 +102,7 @@ void *shmheap_underlying(shmheap_memory_handle mem) {
 void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
     /* TODO */
     
-    // round to 8 bytes
+    // 8 bytes alignment
     sz = (sz + 7) & (-8);
 
     shmheap_root *root = mem.addr;
@@ -127,6 +127,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
                 mem.addr = newaddr;
                 mem.mmsize = mem.mmsize * 2;
                 root->size = mem.mmsize * 2;
+                printf("Successfully expanded space");
             }
             // Attempt to increase space, but does not handle if there is not enough space
             // to expand at the current location.
@@ -205,6 +206,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
                             mem.mmsize = mem.mmsize * 2;
                             root->size = mem.mmsize * 2;
                             i--;
+                            printf("Successfully expanded space");
                         }
                         // Attempt to increase space, but does not handle if there is not enough space
                         // to expand at the current location.
