@@ -45,6 +45,7 @@ typedef struct {
 typedef struct {
     void* addr;
     size_t mmsize;
+    char* name;
 } shmheap_memory_handle;
 
 typedef struct {

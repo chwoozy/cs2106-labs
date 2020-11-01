@@ -108,7 +108,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
     shmheap_root *root = mem.addr;
 
     // check if mem is resized (ex4)
-    if (mem.mmsize != root->size) {
+    if ((int) mem.mmsize != root->size) {
         shmheap_disconnect(mem);
         mem = shmheap_connect(mem.name);
     }
