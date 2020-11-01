@@ -1,8 +1,8 @@
 /*************************************
 * Lab 4
-* Name:
-* Student No:
-* Lab Group:
+* Name: Wong Choon Wei
+* Student No: A0202190X
+* Lab Group: 11
 *************************************/
 
 #include "shmheap.h"
@@ -15,6 +15,8 @@
 
 #define ROOT 48
 #define NODE 8
+
+static char shm_name_store[20]="/shmheap";
 
 shmheap_memory_handle shmheap_create(const char *name, size_t len) {
     /* TODO */
@@ -31,6 +33,7 @@ shmheap_memory_handle shmheap_create(const char *name, size_t len) {
             // mem init
             mem.addr = addr;
             mem.mmsize = len;
+            mem.name = name;
 
             // root init
             shmheap_root *root = addr;
@@ -60,6 +63,7 @@ shmheap_memory_handle shmheap_connect(const char *name) {
         void* addr = mmap(NULL, s.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         mem.addr = addr;
         mem.mmsize = s.st_size;
+        mem.name = name;
         if (addr == MAP_FAILED) {
             perror("Error in mapping memory");
         } else {
@@ -102,21 +106,33 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
     sz = (sz + 7) & (-8);
 
     shmheap_root *root = mem.addr;
+
+    // check if mem is resized (ex4)
+    if (mem.mmsize != root->size) {
+        shmheap_disconnect(mem);
+        mem = shmheap_connect(mem.name);
+    }
+
+    // enter mutex critical section
     sem_wait(&root->mutex);
     void* allocated = mem.addr;
     if (root->count == 1) {
         int freespace = root->next - sz - ROOT;
         // update root
         if (root->next < (int) sz) {
-            if (mremap(mem.addr, mem.mmsize, mem.mmsize * 2) == MAP_FAILED) {
-                perror("Not handling case where there is not enough space at current location");
+            void *newaddr = mremap(mem.addr, mem.mmsize, mem.mmsize * 2, MREMAP_MAYMOVE);
+            if (newaddr == MAP_FAILED) {
+                perror("Remapping failed!");
+            } else {
+                mem.addr = newaddr;
+                mem.mmsize = mem.mmsize * 2;
+                root->size = mem.mmsize * 2;
             }
             // Attempt to increase space, but does not handle if there is not enough space
             // to expand at the current location.
         }
         root->curr = '1'; // assume that can fit into first space
         root->next = ROOT + sz;
-        //root->next placeholder
 
         // update next free node
         shmheap_node *node = allocated + root->next;
@@ -179,15 +195,21 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
                     }
                     break;
                 } else {
-                    allocated += node->next; //may break if cant find free space, assume always got enough space
+                     //may break if cant find free space, assume always got enough space
                     if (i == (root->count - 1)) { 
-                        if (mremap(mem.addr, mem.mmsize, mem.mmsize * 2) == MAP_FAILED) {
-                            perror("Not handling case where there is not enough space at current location");
+                        void *newaddr = mremap(mem.addr, mem.mmsize, mem.mmsize * 2, MREMAP_MAYMOVE);
+                        if (newaddr == MAP_FAILED) {
+                            perror("Remapping failed!");
                         } else {
-                            root->count++;
+                            mem.addr = newaddr;
+                            mem.mmsize = mem.mmsize * 2;
+                            root->size = mem.mmsize * 2;
+                            i--;
                         }
                         // Attempt to increase space, but does not handle if there is not enough space
                         // to expand at the current location.
+                    } else {
+                        allocated += node->next;
                     }
                 }
             }
@@ -195,6 +217,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
         
 
     }
+    // exit mutex critical section
     sem_post(&root->mutex);
     return allocated; //may break if cant find free space, assume always got enough space
 }
