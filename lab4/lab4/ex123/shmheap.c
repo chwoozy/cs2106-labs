@@ -12,20 +12,21 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <stdlib.h>
 
 #define ROOT 56
 #define NODE 8
-
-static char shm_name_store[20]="/shmheap";
 
 shmheap_memory_handle shmheap_create(const char *name, size_t len) {
     /* TODO */
     int fd = shm_open(name, O_RDWR | O_CREAT, 0644);
     if (fd == -1) {
         perror("Error in creating shared memory");
+        exit(EXIT_FAILURE);
     } else {
         if (ftruncate(fd, len) == - 1) {
             perror("Error in truncating file");
+            exit(EXIT_FAILURE);
         } else {
             shmheap_memory_handle mem;
             void* addr = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
@@ -33,7 +34,7 @@ shmheap_memory_handle shmheap_create(const char *name, size_t len) {
             // mem init
             mem.addr = addr;
             mem.mmsize = len;
-            mem.name = name;
+            mem.name = (char*) name;
 
             // root init
             shmheap_root *root = addr;
@@ -44,6 +45,7 @@ shmheap_memory_handle shmheap_create(const char *name, size_t len) {
 
             if (addr == MAP_FAILED) {
                 perror("Error in mapping memory");
+                exit(EXIT_FAILURE);
             } else {
                 return mem;
             }
@@ -57,15 +59,17 @@ shmheap_memory_handle shmheap_connect(const char *name) {
     int fd = shm_open(name, O_RDWR, 0644);
     if (fd == -1) {
         perror("Error in opening shared memory");
+        exit(EXIT_FAILURE);
     } else {
         fstat(fd, &s);
         shmheap_memory_handle mem;
         void* addr = mmap(NULL, s.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         mem.addr = addr;
         mem.mmsize = s.st_size;
-        mem.name = name;
+        mem.name = (char*) name;
         if (addr == MAP_FAILED) {
             perror("Error in mapping memory");
+            exit(EXIT_FAILURE);
         } else {
             return mem;
         }
@@ -78,6 +82,7 @@ void shmheap_disconnect(shmheap_memory_handle mem) {
     int status = munmap(mem.addr, mem.mmsize);
     if (status == -1) {
         perror("Error in disconnecting");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -89,6 +94,7 @@ void shmheap_destroy(const char *name, shmheap_memory_handle mem) {
     int status = munmap(mem.addr, mem.mmsize);
     if (status == -1) {
         perror("Error in disconnecting");
+        exit(EXIT_FAILURE);
     } else {
         shm_unlink(name);
     }
@@ -123,6 +129,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
             void *newaddr = mremap(mem.addr, mem.mmsize, mem.mmsize * 2, MREMAP_MAYMOVE);
             if (newaddr == MAP_FAILED) {
                 perror("Remapping failed!");
+                exit(EXIT_FAILURE);
             } else {
                 mem.addr = newaddr;
                 mem.mmsize = mem.mmsize * 2;
@@ -201,6 +208,7 @@ void *shmheap_alloc(shmheap_memory_handle mem, size_t sz) {
                         void *newaddr = mremap(mem.addr, mem.mmsize, mem.mmsize * 2, MREMAP_MAYMOVE);
                         if (newaddr == MAP_FAILED) {
                             perror("Remapping failed!");
+                            exit(EXIT_FAILURE);
                         } else {
                             mem.addr = newaddr;
                             mem.mmsize = mem.mmsize * 2;
