@@ -4,6 +4,12 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/mman.h>
+
+
+
+
+
 
 // The zc_file struct is analogous to the FILE struct that you get from fopen.
 struct zc_file
