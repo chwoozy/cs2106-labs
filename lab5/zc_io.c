@@ -5,16 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
-
-
-
-
-
+#include <stdio.h>
 
 // The zc_file struct is analogous to the FILE struct that you get from fopen.
 struct zc_file
 {
-
   void *addr;
   size_t size;
   int offset;
@@ -31,11 +26,17 @@ zc_file *zc_open(const char *path)
   zc_file *zc;
 
   //open file
-  int fd = open(path, O_CREAT | O_RDWR, 0644);
+  if ((int fd = open(path, O_CREAT | O_RDWR, 0644)) == -1)
+  {
+    perror("Error opening file...")
+  }
 
   // get stat of file
   fstat(fd, &s);
-  void *addr = mmap(NULL, s.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  if ((void *addr = mmap(NULL, s.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == MAP_FAILED)
+  {
+    perror("Error mapping...")
+  }
 
   zc->addr = addr;
   zc->size = s.st_size;
