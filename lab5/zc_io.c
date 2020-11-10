@@ -24,18 +24,20 @@ zc_file *zc_open(const char *path)
   //init variables
   struct stat s;
   zc_file *zc;
+  int fd;
+  void *addr;
 
   //open file
-  if ((int fd = open(path, O_CREAT | O_RDWR, 0644)) == -1)
+  if ((fd = open(path, O_CREAT | O_RDWR, 0644)) == -1)
   {
-    perror("Error opening file...")
+    perror("Error opening file...");
   }
 
   // get stat of file
   fstat(fd, &s);
-  if ((void *addr = mmap(NULL, s.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == MAP_FAILED)
+  if ((addr = mmap(NULL, s.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == MAP_FAILED)
   {
-    perror("Error mapping...")
+    perror("Error mapping...make");
   }
 
   zc->addr = addr;
