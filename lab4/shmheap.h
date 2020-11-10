@@ -33,7 +33,7 @@ typedef struct {
     int next; // bytes to next process
     sem_t mutex;
     int size; // ex4 -> check size
-} shmheap_root; //48 bytes
+} shmheap_root; //56 bytes
 
 typedef struct {
     unsigned short size; // size of struct
