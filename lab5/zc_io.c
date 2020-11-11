@@ -58,7 +58,7 @@ const char *zc_read_start(zc_file *file, size_t *size)
   if (file->size < *size)
   {
     *size = file->size;
-    size = 0;
+    file->size = 0;
   }
   else
   {
