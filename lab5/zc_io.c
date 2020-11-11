@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
-#include <stdio.h>
+#include <unistd.h>
 
 // The zc_file struct is analogous to the FILE struct that you get from fopen.
 struct zc_file
@@ -23,7 +23,7 @@ zc_file *zc_open(const char *path)
 {
   //init variables
   struct stat s;
-  zc_file *zc;
+  struct zc_file *zc = malloc(sizeof(struct zc_file));
   int fd;
   void *addr;
 
