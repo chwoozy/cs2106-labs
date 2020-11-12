@@ -91,6 +91,7 @@ char *zc_write_start(zc_file *file, size_t size)
     }
 
     void* newaddr = mremap(file->addr, oldsize, 2 * oldsize, MREMAP_MAYMOVE);
+    file->addr = newaddr;
     file->size += oldsize;
   }
   file->size -= size;
@@ -101,7 +102,7 @@ char *zc_write_start(zc_file *file, size_t size)
 
 void zc_write_end(zc_file *file)
 {
-  // To implement
+  msync(file->addr, file->offset + file->size, MS_SYNC);
 }
 
 /**************
