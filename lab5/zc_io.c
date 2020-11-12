@@ -10,6 +10,7 @@
 // The zc_file struct is analogous to the FILE struct that you get from fopen.
 struct zc_file
 {
+  int fd;
   void *addr;
   size_t size;
   int offset;
@@ -43,6 +44,7 @@ zc_file *zc_open(const char *path)
   zc->addr = addr;
   zc->size = s.st_size;
   zc->offset = 0;
+  zc->fd = fd;
   return zc;
 }
 
@@ -80,8 +82,21 @@ void zc_read_end(zc_file *file)
 
 char *zc_write_start(zc_file *file, size_t size)
 {
-  // To implement
-  return NULL;
+  int off = file->offset;
+
+  if (file->size < size) {
+    size_t oldsize = file->offset + file->size;
+    if (ftruncate(file->fd, 2 * oldsize) == -1) {
+      perror("Error truncating file...");
+    }
+
+    void* newaddr = mremap(file->addr, oldsize, 2 * oldsize, MREMAP_MAYMOVE);
+    file->size += oldsize;
+  }
+  file->size -= size;
+  file->offset += size;
+
+  return (char *)file->addr + off;
 }
 
 void zc_write_end(zc_file *file)
