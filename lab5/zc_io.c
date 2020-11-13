@@ -27,6 +27,7 @@ zc_file *zc_open(const char *path)
   struct zc_file *zc = malloc(sizeof(struct zc_file));
   int fd;
   void *addr;
+  size_t fsize;
 
   //open file
   if ((fd = open(path, O_CREAT | O_RDWR, 0644)) == -1)
@@ -36,14 +37,15 @@ zc_file *zc_open(const char *path)
 
   // get stat of file
   fstat(fd, &s);
-  printf("Open Stats, %ld", s.st_size);
-  if ((addr = mmap(NULL, s.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == MAP_FAILED)
+  fsize = s.st_size == 0 ? 4 : s.st_size;
+  printf("Open Stats, %ld", fsize);
+  if ((addr = mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == MAP_FAILED)
   {
-    perror("Error mapping...make");
+    perror("Error mapping...");
   }
 
   zc->addr = addr;
-  zc->size = s.st_size;
+  zc->size = fsize;
   zc->offset = 0;
   zc->fd = fd;
   return zc;
