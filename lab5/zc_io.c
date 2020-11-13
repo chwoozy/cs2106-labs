@@ -175,6 +175,14 @@ off_t zc_lseek(zc_file *file, long offset, int whence)
 
 int zc_copyfile(const char *source, const char *dest)
 {
-  // To implement
-  return -1;
+  struct stat sc;
+  int src = open(source, O_RDWR, 0644);
+  int dst = open(dest, O_RDWR, 0644);
+  fstat(src, &sc);
+
+  if (copy_file_range(src, NULL, dst, NULL, sc.st_size, 0) == -1) {
+    return -1;
+  } else {
+    return 0;
+  }
 }
