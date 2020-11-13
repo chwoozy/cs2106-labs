@@ -44,7 +44,6 @@ zc_file *zc_open(const char *path)
   // get stat of file
   fstat(fd, &s);
   fsize = s.st_size == 0 ? 4 : s.st_size;
-  printf("Open Stats, %ld", fsize);
   if ((addr = mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == MAP_FAILED)
   {
     perror("Error mapping...");
@@ -176,8 +175,8 @@ off_t zc_lseek(zc_file *file, long offset, int whence)
 int zc_copyfile(const char *source, const char *dest)
 {
   struct stat sc;
-  int src = open(source, O_RDWR, 0644);
-  int dst = open(dest, O_RDWR, 0644);
+  int src = open(source, O_RDWR | O_CREAT, 0644);
+  int dst = open(dest, O_RDWR | O_CREAT, 0644);
   fstat(src, &sc);
 
   if (copy_file_range(src, NULL, dst, NULL, sc.st_size, 0) == -1) {
