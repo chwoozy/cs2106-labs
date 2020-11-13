@@ -9,6 +9,7 @@
 // THERE IS NO NEED TO CHANGE THIS HEADER FILE
 
 typedef struct zc_file zc_file;
+typedef struct zc_page zc_page;
 
 // Exercise 1
 zc_file *zc_open(const char *path);
