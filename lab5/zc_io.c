@@ -14,6 +14,7 @@ struct zc_file
   void *addr;
   size_t size;
   size_t offset;
+  size_t totalSize;
 };
 
 /**************
@@ -46,6 +47,7 @@ zc_file *zc_open(const char *path)
 
   zc->addr = addr;
   zc->size = fsize;
+  zc->totalSize = fsize;
   zc->offset = 0;
   zc->fd = fd;
   return zc;
@@ -97,6 +99,7 @@ char *zc_write_start(zc_file *file, size_t size)
     void* newaddr = mremap(file->addr, oldsize, oldsize + additional, MREMAP_MAYMOVE);
     file->addr = newaddr;
     file->size += additional;
+    file->totalSize += additional;
   }
   file->size -= size;
   file->offset += size;
@@ -115,8 +118,18 @@ void zc_write_end(zc_file *file)
 
 off_t zc_lseek(zc_file *file, long offset, int whence)
 {
-  // To implement
-  return -1;
+  if (whence == SEEK_SET) {
+    // file->offset = offset;
+    return offset;
+  } else if (whence == SEEK_CUR) {
+    // file->offset += offset;
+    return file->offset + offset;
+  } else if (whence == SEEK_END) {
+    // file->offset = file->totalSize + offset;
+    return file->totalSize + offset;
+  } else {
+    return -1;
+  }
 }
 
 /**************
