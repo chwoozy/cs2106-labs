@@ -20,6 +20,7 @@ struct zc_file
   sem_t readerSem;
   sem_t mutex;
   int counter;
+  int pagesize;
 };
 
 /**************
@@ -58,6 +59,7 @@ zc_file *zc_open(const char *path)
   sem_init(&zc->writerSem, 0, 1);
   sem_init(&zc->readerSem, 0, 1);
   sem_init(&zc->mutex, 0, 1);
+  zc->pagesize = getpagesize();
   return zc;
 }
 
