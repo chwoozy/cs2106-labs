@@ -13,7 +13,7 @@ struct zc_file
   int fd;
   void *addr;
   size_t size;
-  int offset;
+  size_t offset;
 };
 
 /**************
@@ -36,6 +36,7 @@ zc_file *zc_open(const char *path)
 
   // get stat of file
   fstat(fd, &s);
+  printf("Open Stats, %ld", s.st_size);
   if ((addr = mmap(NULL, s.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == MAP_FAILED)
   {
     perror("Error mapping...make");
@@ -86,13 +87,14 @@ char *zc_write_start(zc_file *file, size_t size)
 
   if (file->size < size) {
     size_t oldsize = file->offset + file->size;
-    if (ftruncate(file->fd, 2 * oldsize) == -1) {
+    size_t additional = size - file->size;
+    if (ftruncate(file->fd, oldsize + additional) == -1) {
       perror("Error truncating file...");
     }
 
-    void* newaddr = mremap(file->addr, oldsize, 2 * oldsize, MREMAP_MAYMOVE);
+    void* newaddr = mremap(file->addr, oldsize, oldsize + additional, MREMAP_MAYMOVE);
     file->addr = newaddr;
-    file->size += oldsize;
+    file->size += additional;
   }
   file->size -= size;
   file->offset += size;
