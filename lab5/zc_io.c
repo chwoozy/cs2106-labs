@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <semaphore.h>
 
 // The zc_file struct is analogous to the FILE struct that you get from fopen.
 struct zc_file
@@ -15,6 +16,10 @@ struct zc_file
   size_t size;
   size_t offset;
   size_t totalSize;
+  sem_t writerSem;
+  sem_t readerSem;
+  sem_t mutex;
+  int counter;
 };
 
 /**************
@@ -50,6 +55,10 @@ zc_file *zc_open(const char *path)
   zc->totalSize = fsize;
   zc->offset = 0;
   zc->fd = fd;
+  zc->counter = 0;
+  sem_init(&zc->writerSem, 0, 1);
+  sem_init(&zc->readerSem, 0, 1);
+  sem_init(&zc->mutex, 0, 1);
   return zc;
 }
 
@@ -60,6 +69,14 @@ int zc_close(zc_file *file)
 
 const char *zc_read_start(zc_file *file, size_t *size)
 {
+  sem_wait(&file->readerSem);
+  sem_wait(&file->mutex);
+  if (++file->counter == 1) {
+    sem_wait(&file->writerSem);
+  }
+  sem_post(&file->mutex);
+  sem_post(&file->readerSem);
+
   int off = file->offset;
 
   if (file->size < *size)
@@ -79,6 +96,11 @@ const char *zc_read_start(zc_file *file, size_t *size)
 void zc_read_end(zc_file *file)
 {
   // To implement
+  sem_wait(&file->mutex);
+  if (--file->counter == 0) {
+    sem_post(&file->writerSem);
+  }
+  sem_post(&file->mutex);
 }
 
 /**************
@@ -87,6 +109,8 @@ void zc_read_end(zc_file *file)
 
 char *zc_write_start(zc_file *file, size_t size)
 {
+  sem_wait(&file->readerSem);
+  sem_wait(&file->writerSem);
   int off = file->offset;
 
   if (file->size < size) {
@@ -110,6 +134,8 @@ char *zc_write_start(zc_file *file, size_t size)
 void zc_write_end(zc_file *file)
 {
   msync(file->addr, file->offset + file->size, MS_SYNC);
+  sem_post(&file->writerSem);
+  sem_post(&file->readerSem);
 }
 
 /**************
@@ -118,16 +144,27 @@ void zc_write_end(zc_file *file)
 
 off_t zc_lseek(zc_file *file, long offset, int whence)
 {
+  sem_wait(&file->readerSem);
+  sem_wait(&file->writerSem);
   if (whence == SEEK_SET) {
     // file->offset = offset;
-    return offset;
+    file->offset = offset;
+    sem_post(&file->writerSem);
+    sem_post(&file->readerSem);
+    return file->offset;
   } else if (whence == SEEK_CUR) {
-    // file->offset += offset;
-    return file->offset + offset;
+    file->offset += offset;
+    sem_post(&file->writerSem);
+    sem_post(&file->readerSem);
+    return file->offset;
   } else if (whence == SEEK_END) {
-    // file->offset = file->totalSize + offset;
-    return file->totalSize + offset;
+    file->offset = file->totalSize + offset;
+    sem_post(&file->writerSem);
+    sem_post(&file->readerSem);
+    return file->offset;
   } else {
+    sem_post(&file->writerSem);
+    sem_post(&file->readerSem);
     return -1;
   }
 }
