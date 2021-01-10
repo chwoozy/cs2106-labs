@@ -1,4 +1,10 @@
 # cs2106-labs
 
- - Personal repo for CS2106 Labs. 
- - Not intended for mass distribution.
+ - Personal repository for CS2106 Labs.
+ 
+ # Progress
+- [x] Lab 1
+- [x] Lab 2
+- [x] Lab 3
+- [x] Lab 4
+- [x] Lab 5
